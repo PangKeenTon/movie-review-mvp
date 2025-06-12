@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8">
+  <title th:text="${pageTitle} + ' - Movie Review MVP'"></title>
+  <link rel="stylesheet" th:href="@{/css/style.css}" />
+</head>
+<body>
+<header class="main-header">
+  <nav class="main-nav">
+    <div class="nav-links">
+      <a th:href="@{/}">Trang Chủ</a>
+      <a th:href="@{/movies}">Phim (Local)</a>
+      <a th:href="@{/movies/tmdb/popular}">Phim Phổ Biến (TMDB)</a>
+      <a th:href="@{/movies/tmdb/tv/popular}" class="active">Chương Trình TV (TMDB)</a>
+    </div>
+    <form th:action="@{/movies/tmdb/search}" method="get" class="tmdb-search-form">
+      <input type="text" name="query" placeholder="Tìm phim trên TMDB..." required />
+      <button type="submit">Tìm</button>
+    </form>
+    <div class="header-right">
+      <th:block sec:authorize="!isAuthenticated()">
+        <a th:href="@{/login}">Đăng Nhập</a>
+        <a th:href="@{/register}">Đăng Ký</a>
+      </th:block>
+      <th:block sec:authorize="isAuthenticated()">
+        <span class="user-greeting">Chào, <span sec:authentication="name">User</span>!</span>
+        <form th:action="@{/perform_logout}" method="post" style="display: inline;">
+          <button type="submit" class="logout-button">Đăng Xuất</button>
+        </form>
+      </th:block>
+    </div>
+  </nav>
+</header>
+
+<main>
+  <h2 th:text="${pageTitle}">Chương Trình TV Phổ Biến từ TMDB</h2>
+
+  <div class="movie-list-grid" th:if="${not #lists.isEmpty(tvShows)}">
+    <div class="movie-list-card" th:each="tvShow : ${tvShows}">
+      <a th:href="@{/movies/tmdb/tv/details/{id}(id=${tvShow.id})}"> <!-- Placeholder for TV show details -->
+        <img th:if="${tvShow.posterPath != null and !tvShow.posterPath.isEmpty()}"
+             th:src="${tmdbImageBaseUrl + tvShow.posterPath}"
+             th:alt="${tvShow.name}" class="movie-poster-list"/>
+        <img th:unless="${tvShow.posterPath != null and !tvShow.posterPath.isEmpty()}"
+             th:src="@{/images/default-poster.png}" alt="Default Poster" class="movie-poster-list"/>
+
+        <h3 th:text="${tvShow.name}">Tên Chương Trình TV</h3>
+      </a>
+      <p th:if="${tvShow.firstAirDate != null and !tvShow.firstAirDate.isEmpty()}"
+         th:text="'Ngày phát sóng đầu tiên: ' + ${tvShow.firstAirDate}">Ngày Phát Sóng Đầu Tiên</p>
+      <p th:if="${tvShow.voteAverage != null}"
+         th:text="'Đánh giá TMDB: ' + ${#numbers.formatDecimal(tvShow.voteAverage, 1, 1)} + '/10'">Đánh giá</p>
+    </div>
+  </div>
+  <div th:if="${#lists.isEmpty(tvShows)}">
+    <p>Không tải được danh sách chương trình TV phổ biến hoặc không có chương trình nào.</p>
+  </div>
+
+  <div class="pagination" style="margin-top: 20px; text-align: center;">
+    <a th:if="${currentPage > 1}" th:href="@{${pageUrl}(page=${currentPage - 1})}" class="button-page">Trang Trước</a>
+    <span style="margin: 0 10px;">Trang <span th:text="${currentPage}">1</span></span>
+    <a th:if="${not #lists.isEmpty(tvShows)}" th:href="@{${pageUrl}(page=${currentPage + 1})}" class="button-page">Trang Tiếp</a>
+  </div>
+
+</main>
+
+<footer class="main-footer">
+  <p>&copy; 2025 - Movie Review MVP Project</p>
+</footer>
+</body>
+</html> 

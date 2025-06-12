@@ -160,6 +160,8 @@ package com.example.moviereviewmvp.service;
 import com.example.moviereviewmvp.dto.TmdbMovieDto;
 import com.example.moviereviewmvp.dto.TmdbMovieListResponseDto;
 import com.example.moviereviewmvp.dto.TmdbMovieDetailsDto;
+import com.example.moviereviewmvp.dto.TmdbTvShowDto;
+import com.example.moviereviewmvp.dto.TmdbTvShowListResponseDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -228,6 +230,31 @@ public class TmdbService {
         return Collections.emptyList();
     }
 
+    // --- Các phương thức lấy danh sách chương trình TV ---
+
+    public List<TmdbTvShowDto> getPopularTvShows(int page) {
+        return getTvShowsFromTmdbEndpoint("/tv/popular", page);
+    }
+
+    // Phương thức chung để gọi các endpoint trả về danh sách chương trình TV
+    private List<TmdbTvShowDto> getTvShowsFromTmdbEndpoint(String path, int page) {
+        String url = UriComponentsBuilder.fromHttpUrl(tmdbApiBaseUrl)
+                .path(path)
+                .queryParam("api_key", tmdbApiKey)
+                .queryParam("language", "en-US")
+                .queryParam("page", page)
+                .toUriString();
+        logger.debug("Fetching TV shows from TMDB URL: {}", url);
+        try {
+            TmdbTvShowListResponseDto response = restTemplate.getForObject(url, TmdbTvShowListResponseDto.class);
+            if (response != null && response.getResults() != null) {
+                return response.getResults();
+            }
+        } catch (RestClientException e) {
+            logger.error("Error calling TMDB API for TV show path {}: {}", path, e.getMessage());
+        }
+        return Collections.emptyList();
+    }
 
     // --- Các phương thức tìm kiếm và chi tiết ---
 

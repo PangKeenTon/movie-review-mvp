@@ -6,6 +6,7 @@ import com.example.moviereviewmvp.dto.TmdbMovieDto;
 import com.example.moviereviewmvp.dto.TmdbMovieListResponseDto;
 import com.example.moviereviewmvp.dto.TmdbMovieDetailsDto;
 import com.example.moviereviewmvp.dto.TmdbVideoDto;
+import com.example.moviereviewmvp.dto.TmdbTvShowDto;
 import com.example.moviereviewmvp.entity.Movie;
 import com.example.moviereviewmvp.entity.Review;
 import com.example.moviereviewmvp.service.MovieService;
@@ -256,6 +257,19 @@ public class MovieController { // <-- NGOẶC MỞ CỦA LỚP
         model.addAttribute("pageTitle", "Phim Xếp Hạng Cao");
         model.addAttribute("pageUrl", "/movies/tmdb/top-rated");
         return "movies/popular_tmdb"; // Tái sử dụng template này
+    }
+
+    // --- CÁC MAPPING CHO CHƯƠNG TRÌNH TV TMDB ---
+
+    @GetMapping("/tmdb/tv/popular")
+    public String listPopularTvShows(@RequestParam(name = "page", defaultValue = "1") int page, Model model) {
+        List<TmdbTvShowDto> tvShows = tmdbService.getPopularTvShows(page);
+        model.addAttribute("tvShows", tvShows);
+        model.addAttribute("tmdbImageBaseUrl", tmdbImageBaseUrl + "w500");
+        model.addAttribute("currentPage", page);
+        model.addAttribute("pageTitle", "Chương Trình TV Phổ Biến (TMDB)");
+        model.addAttribute("pageUrl", "/movies/tmdb/tv/popular");
+        return "movies/popular_tv_tmdb"; // Sẽ tạo template mới này
     }
 
 } // <-- NGOẶC ĐÓNG CUỐI CÙNG CỦA LỚP MovieController. Đảm bảo tất cả phương thức nằm trên dòng này.
