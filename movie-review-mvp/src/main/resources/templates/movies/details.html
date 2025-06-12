@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8">
+  <title th:text="${movie != null ? movie.title + ' - Chi Tiết Phim' : 'Chi Tiết Phim'}"></title>
+  <link rel="stylesheet" th:href="@{/css/style.css}" />
+</head>
+<body>
+<header>
+  <nav>
+    <a th:href="@{/}">Trang Chủ</a>
+    <a th:href="@{/movies}" style="margin-left: 15px;">Phim</a>
+    <a th:href="@{/movies/tmdb/popular}" style="margin-left: 15px;">Phim Phổ Biến (TMDB)</a>
+    <form th:action="@{/movies/tmdb/search}" method="get" style="display: inline-block; margin-left: 15px;">
+      <input type="text" name="query" placeholder="Tìm phim trên TMDB..." required />
+      <button type="submit">Tìm</button>
+    </form>
+    <th:block sec:authorize="!isAuthenticated()" style="float: right;">
+      <a th:href="@{/login}" style="margin-left: 15px;">Đăng Nhập</a>
+      <a th:href="@{/register}" style="margin-left: 10px;">Đăng Ký</a>
+    </th:block>
+    <th:block sec:authorize="isAuthenticated()" style="float: right;">
+      <span style="margin-left: 15px; color: white;">Chào, <span sec:authentication="name">User</span>!</span>
+      <form th:action="@{/perform_logout}" method="post" style="display: inline; margin-left: 10px;">
+        <button type="submit" class="logout-button">Đăng Xuất</button>
+      </form>
+    </th:block>
+  </nav>
+</header>
+
+<main class="movie-details-container" th:if="${movie != null}">
+  <h1 th:text="${movie.title}">Tên Phim</h1>
+
+  <div th:if="${successMessage}" class="success-message alert" th:text="${successMessage}"></div>
+  <div th:if="${errorMessage}" class="error-message alert" th:text="${errorMessage}"></div>
+
+  <div class="movie-info-layout">
+    <div class="movie-poster-details">
+      <img th:if="${movie.posterUrl != null and !movie.posterUrl.isEmpty()}"
+           th:src="@{${movie.posterUrl.startsWith('http') ? movie.posterUrl : '/images/posters/' + movie.posterUrl.replace('/images/posters/', '')}}"
+           th:alt="${movie.title}" />
+      <img th:unless="${movie.posterUrl != null and !movie.posterUrl.isEmpty()}"
+           th:src="@{/images/default-poster.png}" alt="Default Poster"/>
+    </div>
+    <div class="movie-text-details">
+      <p><strong>Năm phát hành:</strong> <span th:text="${movie.releaseYear}">N/A</span></p>
+      <p><strong>Đạo diễn:</strong> <span th:text="${movie.directorName}">N/A</span></p>
+
+      <p><strong>Thể loại:</strong>
+        <span th:if="${not #lists.isEmpty(movie.genres)}" th:each="genre, iterStat : ${movie.genres}">
+            <span th:text="${genre.name}">Thể loại</span><th:block th:if="${!iterStat.last}">, </th:block>
+        </span>
+        <span th:if="${#lists.isEmpty(movie.genres)}">Chưa có thông tin</span>
+      </p>
+
+      <h3>Mô tả</h3>
+      <p th:text="${movie.description}">Mô tả chi tiết phim.</p>
+    </div>
+  </div>
+
+  <div sec:authorize="isAuthenticated()" class="watchlist-buttons" style="margin-top: 15px; margin-bottom: 15px;">
+
+    <form th:if="${!isInWatchlist}" th:action="@{/watchlist/add/{movieId}(movieId=${movie.id})}" method="post">
+      <button type="submit" class="button-watchlist add">➕ Thêm vào Watchlist</button>
+    </form>
+
+    <form th:if="${isInWatchlist}" th:action="@{/watchlist/remove/{movieId}(movieId=${movie.id})}" method="post">
+      <button type="submit" class="button-watchlist remove">✔ Đã có trong Watchlist (Xóa)</button>
+    </form>
+  </div>
+  <hr style="margin-top: 20px; margin-bottom: 20px;">
+
+  <div id="reviews-section">
+    <h2>Đánh giá phim (<span th:text="${#lists.size(reviews)}">0</span>)</h2>
+
+    <div sec:authorize="isAuthenticated()" class="add-review-form">
+      <h3>Để lại đánh giá của bạn:</h3>
+      <form th:action="@{/movies/{movieId}/reviews(movieId=${movie.id})}" th:object="${newReview}" method="post">
+        <div>
+          <label for="ratingValue">Điểm số (1-5 sao):</label>
+          <select id="ratingValue" th:field="*{ratingValue}" class="form-input">
+            <option value="">-- Chọn điểm --</option>
+            <option th:each="i : ${#numbers.sequence(1, 5)}" th:value="${i}" th:text="${i} + ' sao'"></option>
+          </select>
+          <p th:if="${#fields.hasErrors('ratingValue')}" th:errors="*{ratingValue}" class="error-message"></p>
+        </div>
+        <div style="margin-top: 10px;">
+          <label for="commentText">Bình luận của bạn:</label>
+          <textarea id="commentText" th:field="*{commentText}" rows="4" class="form-input" style="width: 90%;"></textarea>
+          <p th:if="${#fields.hasErrors('commentText')}" th:errors="*{commentText}" class="error-message"></p>
+        </div>
+        <div style="margin-top: 10px;">
+          <button type="submit" class="button-submit-review">Gửi đánh giá</button>
+        </div>
+      </form>
+    </div>
+
+    <div sec:authorize="!isAuthenticated()">
+      <p><a th:href="@{/login(redirectUrl=${#httpServletRequest.requestURI})}">Đăng nhập</a> để để lại đánh giá.</p>
+    </div>
+
+    <hr style="margin-top: 20px; margin-bottom: 20px;">
+
+    <div class="review-list" th:if="${not #lists.isEmpty(reviews)}">
+      <div th:each="review : ${reviews}" class="review-item">
+        <p>
+          <strong><span th:text="${review.user != null ? review.user.username : 'Ẩn danh'}">Người dùng</span></strong>
+          đã đánh giá <strong th:text="${review.ratingValue}">0</strong>/5 sao
+          <span class="review-date" th:text="'vào lúc ' + ${#temporals.format(review.reviewDate, 'HH:mm dd/MM/yyyy')}">Ngày giờ</span>
+        </p>
+        <p class="review-comment" th:text="${review.commentText}">Nội dung bình luận.</p>
+      </div>
+    </div>
+    <div th:if="${#lists.isEmpty(reviews)}">
+      <p>Chưa có đánh giá nào cho phim này. Hãy là người đầu tiên đánh giá!</p>
+    </div>
+  </div>
+</main>
+<div th:if="${movie == null}" class="container">
+  <p>Không tìm thấy thông tin phim.</p>
+</div>
+
+<footer>
+  <p>© 2025 - Movie Review MVP Project</p>
+</footer>
+</body>
+</html>

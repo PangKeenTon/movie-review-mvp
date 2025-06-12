@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8">
+  <title th:text="${tmdbMovie != null ? tmdbMovie.title + ' - Chi Tiết Phim (TMDB)' : 'Chi Tiết Phim'}"></title>
+  <link rel="stylesheet" th:href="@{/css/style.css}" />
+  <style>
+    /* Thêm một chút style riêng cho trang này nếu cần */
+    .backdrop-container {
+      width: 100%;
+      height: 450px; /* Hoặc chiều cao bạn muốn */
+      background-size: cover;
+      background-position: center center;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      position: relative;
+    }
+    .backdrop-container::before { /* Lớp phủ mờ */
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.3);
+      border-radius: 8px;
+    }
+    .movie-main-info {
+      display: flex;
+      gap: 30px;
+    }
+    .movie-poster-large img {
+      max-width: 300px; /* Hoặc kích thước bạn muốn cho poster chính */
+      height: auto;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    .movie-details-text {
+      flex: 1;
+    }
+    .movie-details-text h1 { margin-top: 0; }
+    .movie-details-text .tagline { font-style: italic; color: #666; margin-bottom: 15px;}
+    .section-title { margin-top: 30px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+    .cast-list { display: flex; flex-wrap: wrap; gap: 15px; margin-top:15px; }
+    .cast-member { width: 100px; text-align: center; font-size: 0.9em;}
+    .cast-member img { width: 80px; height: 120px; object-fit: cover; border-radius: 4px; margin-bottom: 5px; }
+    .videos-list iframe { margin-top: 15px; border-radius: 8px; }
+  </style>
+</head>
+<body>
+<header>
+  <nav>
+    <a th:href="@{/}">Trang Chủ</a>
+    <a th:href="@{/movies}" style="margin-left: 15px;">Phim (Local)</a>
+    <a th:href="@{/movies/tmdb/popular}" style="margin-left: 15px;">Phim Phổ Biến (TMDB)</a>
+    <form th:action="@{/movies/tmdb/search}" method="get" style="display: inline-block; margin-left: 15px;">
+      <input type="text" name="query" placeholder="Tìm phim trên TMDB..." required style="padding: 5px; border-radius: 3px; border: 1px solid #ccc;" />
+      <button type="submit" style="padding: 5px 10px; background-color: #5cb85c; color: white; border: none; border-radius: 3px; cursor: pointer;">Tìm</button>
+    </form>
+    <th:block sec:authorize="!isAuthenticated()" style="float: right;">
+      <a th:href="@{/login}" style="margin-left: 15px;">Đăng Nhập</a>
+      <a th:href="@{/register}" style="margin-left: 10px;">Đăng Ký</a>
+    </th:block>
+    <th:block sec:authorize="isAuthenticated()" style="float: right;">
+      <span style="margin-left: 15px; color: white;">Chào, <span sec:authentication="name">User</span>!</span>
+      <form th:action="@{/perform_logout}" method="post" style="display: inline; margin-left: 10px;">
+        <button type="submit" class="logout-button">Đăng Xuất</button>
+      </form>
+    </th:block>
+  </nav>
+</header>
+
+<main class="movie-details-container" th:if="${tmdbMovie != null and movie != null}">
+  <div class="backdrop-container"
+       th:if="${tmdbMovie.backdropPath != null}"
+       th:style="'background-image: url(' + ${tmdbImageBaseUrl} + 'w1280' + ${tmdbMovie.backdropPath} + ');'">
+  </div>
+
+  <div th:if="${successMessage}" class="success-message alert" th:text="${successMessage}"></div>
+  <div th:if="${errorMessage}" class="error-message alert" th:text="${errorMessage}"></div>
+
+  <div class="movie-main-info">
+    <div class="movie-poster-large">
+      <img th:if="${tmdbMovie.posterPath != null}"
+           th:src="${tmdbImageBaseUrl + 'w500' + tmdbMovie.posterPath}"
+           th:alt="${tmdbMovie.title}" />
+      <img th:unless="${tmdbMovie.posterPath != null}"
+           th:src="@{/images/default-poster.png}" alt="Default Poster"/>
+    </div>
+    <div class="movie-details-text">
+      <h1 th:text="${tmdbMovie.title}">Tên Phim</h1>
+      <p class="tagline" th:if="${tmdbMovie.tagline != null and !tmdbMovie.tagline.isEmpty()}" th:text="${tmdbMovie.tagline}"></p>
+      <p><strong>Ngày phát hành:</strong> <span th:text="${tmdbMovie.releaseDate}">N/A</span></p>
+      <p th:if="${tmdbMovie.runtime != null and tmdbMovie.runtime > 0}">
+        <strong>Thời lượng:</strong>
+        <span th:text="${tmdbMovie.runtime / 60}">0</span> giờ
+        <span th:text="${tmdbMovie.runtime % 60}">0</span> phút
+      </p>
+      <p><strong>Điểm TMDB:</strong> <span th:text="${#numbers.formatDecimal(tmdbMovie.voteAverage, 1, 1)} + '/10'">N/A</span></p>
+      <p><strong>Thể loại:</strong>
+        <span th:if="${not #lists.isEmpty(tmdbMovie.genres)}" th:each="genre, iterStat : ${tmdbMovie.genres}">
+            <span th:text="${genre.name}">Thể loại</span><th:block th:if="${!iterStat.last}">, </th:block>
+        </span>
+        <span th:if="${#lists.isEmpty(tmdbMovie.genres)}">Chưa có thông tin</span>
+      </p>
+      <h3>Mô tả</h3>
+      <p th:text="${tmdbMovie.overview}">Mô tả chi tiết phim.</p>
+    </div>
+  </div>
+
+  <div sec:authorize="isAuthenticated()" class="watchlist-buttons" style="margin-top: 15px; margin-bottom: 15px;">
+
+    <form th:if="${!isInWatchlist}" th:action="@{/watchlist/add/{movieId}(movieId=${movie.id})}" method="post">
+      <button type="submit" class="button-watchlist add">➕ Thêm vào Watchlist</button>
+    </form>
+
+    <form th:if="${isInWatchlist}" th:action="@{/watchlist/remove/{movieId}(movieId=${movie.id})}" method="post">
+      <button type="submit" class="button-watchlist remove">✔ Đã có trong Watchlist (Xóa)</button>
+    </form>
+  </div>
+  <div class="cast-section" th:if="${tmdbMovie.credits != null and not #lists.isEmpty(tmdbMovie.credits.cast)}">
+    <h2 class="section-title">Diễn viên nổi bật</h2>
+    <div class="cast-list">
+      <div class="cast-member" th:each="member : ${tmdbMovie.credits.cast}" th:if="${memberStat.index < 10}">
+        <img th:if="${member.profilePath != null}"
+             th:src="${tmdbImageBaseUrl + 'w185' + member.profilePath}"
+             th:alt="${member.name}"/>
+        <img th:unless="${member.profilePath != null}"
+             th:src="@{/images/default-avatar.png}" alt="No Image"
+             style="width: 80px; height: 120px; object-fit: cover; border-radius: 4px; margin-bottom: 5px; background-color: #eee;"/>
+        <p th:text="${member.name}">Tên Diễn viên</p>
+        <p style="font-size:0.8em; color:#555;" th:text="'as ' + ${member.character}">Nhân vật</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="videos-section" th:if="${trailer.isPresent()}">
+    <h2 class="section-title">Trailer</h2>
+    <div class="videos-list">
+      <iframe width="720" height="405"
+              th:src="'https://www.youtube.com/embed/' + ${trailer.get().key}"
+              th:title="${trailer.get().name}"
+              frameborder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              referrerpolicy="strict-origin-when-cross-origin"
+              allowfullscreen>
+      </iframe>
+      <p th:text="${trailer.get().name}" style="text-align: center; font-style: italic; max-width: 720px; margin: 10px auto 0;"></p>
+    </div>
+  </div>
+
+  <div id="reviews-section" style="margin-top:30px; padding-top:20px; border-top: 1px solid #eee;">
+    <h2 class="section-title">Đánh giá phim (<span th:text="${#lists.size(reviews)}">0</span>)</h2>
+
+    <div sec:authorize="isAuthenticated()" class="add-review-form">
+      <h3>Để lại đánh giá của bạn:</h3>
+      <form th:action="@{/movies/{movieId}/reviews(movieId=${movie.id})}" th:object="${newReview}" method="post">
+        <div>
+          <label for="ratingValueTmdb">Điểm số (1-5 sao):</label>
+          <select id="ratingValueTmdb" th:field="*{ratingValue}" class="form-input">
+            <option value="">-- Chọn điểm --</option>
+            <option th:each="i : ${#numbers.sequence(1, 5)}" th:value="${i}" th:text="${i} + ' sao'"></option>
+          </select>
+          <p th:if="${#fields.hasErrors('ratingValue')}" th:errors="*{ratingValue}" class="error-message"></p>
+        </div>
+        <div style="margin-top: 10px;">
+          <label for="commentTextTmdb">Bình luận của bạn:</label>
+          <textarea id="commentTextTmdb" th:field="*{commentText}" rows="4" class="form-input" style="width: 90%;"></textarea>
+          <p th:if="${#fields.hasErrors('commentText')}" th:errors="*{commentText}" class="error-message"></p>
+        </div>
+        <div style="margin-top: 10px;">
+          <button type="submit" class="button-submit-review">Gửi đánh giá</button>
+        </div>
+      </form>
+    </div>
+
+    <div sec:authorize="!isAuthenticated()">
+      p><a th:href="@{/login(redirectUrl=${currentUrl})}">Đăng nhập</a> để để lại đánh giá.</p>
+    </div>
+
+    <hr style="margin-top: 20px; margin-bottom: 20px;">
+
+    <div class="review-list" th:if="${not #lists.isEmpty(reviews)}">
+      <div th:each="review : ${reviews}" class="review-item">
+        <p>
+          <strong><span th:text="${review.user != null ? review.user.username : 'Ẩn danh'}">User</span></strong>
+          đã đánh giá <strong th:text="${review.ratingValue}">0</strong>/5 sao
+          <span class="review-date" th:text="'vào lúc ' + ${#temporals.format(review.reviewDate, 'HH:mm dd/MM/yyyy')}">Date</span>
+        </p>
+        <p class="review-comment" th:text="${review.commentText}">Comment text.</p>
+      </div>
+    </div>
+    <div th:if="${#lists.isEmpty(reviews)}">
+      <p>Chưa có đánh giá nào cho phim này. Hãy là người đầu tiên đánh giá!</p>
+    </div>
+  </div>
+</main>
+<div th:if="${tmdbMovie == null}" class="container">
+  <p>Không tìm thấy thông tin chi tiết cho bộ phim này từ TMDB.</p>
+</div>
+
+<footer>
+  <p>© 2025 - Movie Review MVP Project</p>
+</footer>
+</body>
+</html>

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8">
+  <title>Quản Lý Người Dùng - Admin</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}" />
+  <style>
+    .admin-nav { background-color: #444; padding: 10px 0; text-align: center; }
+    .admin-nav a { color: #f0f0f0; margin: 0 20px; text-decoration: none; font-weight: bold; }
+    .admin-nav a:hover { color: #fff; text-decoration: underline; }
+    .admin-container { padding: 20px; }
+    .admin-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    .admin-table th, .admin-table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+    .admin-table th { background-color: #f2f2f2; }
+    .admin-table tr:nth-child(even){background-color: #f9f9f9;}
+    .admin-table tr:hover {background-color: #f1f1f1;}
+  </style>
+</head>
+<body>
+<header>
+  <nav class="admin-nav">
+    <a th:href="@{/}">Trang Chủ (User View)</a>
+    <a th:href="@{/admin/dashboard}">Admin Dashboard</a>
+    <a th:href="@{/admin/users/list}" style="font-weight: bold; text-decoration: underline;">Quản Lý Người Dùng</a>
+    <a th:href="@{/admin/reviews/list}">Quản Lý Đánh Giá</a>
+    <span style="float: right; margin-right: 20px;">
+                <span style="color: #f0f0f0;">Chào Admin, <span sec:authentication="name">AdminUser</span>!</span>
+                <form th:action="@{/perform_logout}" method="post" style="display: inline; margin-left: 10px;">
+                    <button type="submit" class="logout-button" style="background-color: #d9534f;">Đăng Xuất</button>
+                </form>
+            </span>
+  </nav>
+</header>
+
+<main class="admin-container">
+  <h1>Danh Sách Người Dùng</h1>
+
+  <div th:if="${not #lists.isEmpty(users)}">
+    <table class="admin-table">
+      <thead>
+      <tr>
+        <th>ID</th>
+        <th>Tên đăng nhập</th>
+        <th>Email</th>
+        <th>Vai trò</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="user : ${users}">
+        <td th:text="${user.id}">1</td>
+        <td th:text="${user.username}">username</td>
+        <td th:text="${user.email}">email@example.com</td>
+        <td th:text="${user.roles}">ROLE_USER</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+  <div th:if="${#lists.isEmpty(users)}">
+    <p>Không có người dùng nào trong hệ thống.</p>
+  </div>
+</main>
+
+<footer style="text-align: center; padding: 20px; background-color: #444; color: #f0f0f0; margin-top: 30px;">
+  <p>&copy; 2025 - Movie Review MVP Admin</p>
+</footer>
+</body>
+</html>

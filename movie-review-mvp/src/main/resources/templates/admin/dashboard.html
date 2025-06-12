@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard - Movie Review MVP</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+    <style>
+        /* Style riêng cho admin nếu cần */
+        .admin-nav {
+            background-color: #444; /* Màu nền khác cho nav admin */
+            padding: 10px 0;
+            text-align: center;
+        }
+        .admin-nav a {
+            color: #f0f0f0;
+            margin: 0 20px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .admin-nav a:hover {
+            color: #fff;
+            text-decoration: underline;
+        }
+        .admin-container {
+            padding: 20px;
+        }
+        .admin-section {
+            margin-bottom: 30px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .admin-section h2 {
+            margin-top: 0;
+            color: #333;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <nav class="admin-nav">
+        <a th:href="@{/}">Trang Chủ (User View)</a>
+        <a th:href="@{/admin/dashboard}">Admin Dashboard</a>
+        <span style="float: right; margin-right: 20px;">
+                <span style="color: #f0f0f0;">Chào Admin, <span sec:authentication="name">AdminUser</span>!</span>
+                <form th:action="@{/perform_logout}" method="post" style="display: inline; margin-left: 10px;">
+                    <button type="submit" class="logout-button" style="background-color: #d9534f;">Đăng Xuất</button>
+                </form>
+            </span>
+    </nav>
+</header>
+
+<main class="admin-container">
+    <h1>Admin Dashboard</h1>
+    <p>Chào mừng đến với khu vực quản trị!</p>
+
+    <div class="admin-section">
+        <h2>Thống kê nhanh (Ví dụ)</h2>
+        <p><em>(Phần này sẽ được cập nhật với các số liệu thực tế sau)</em></p>
+        <ul>
+            <li>Tổng số người dùng: [Số liệu]</li>
+            <li>Tổng số phim (local): [Số liệu]</li>
+            <li>Tổng số đánh giá: [Số liệu]</li>
+        </ul>
+    </div>
+
+    <div class="admin-section">
+        <h2>Các Chức Năng Quản Trị</h2>
+        <ul>
+            <li><a th:href="@{/admin/users/list}">Quản Lý Người Dùng</a></li>
+            <li><a th:href="@{/admin/reviews/list}">Quản Lý Đánh Giá</a></li>
+        </ul>
+    </div>
+
+</main>
+
+<footer style="text-align: center; padding: 20px; background-color: #444; color: #f0f0f0; margin-top: 30px;">
+    <p>&copy; 2025 - Movie Review MVP Admin</p>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+
+<header th:fragment="header" class="main-header">
+
+    <div class="header-left">
+        <a th:href="@{/}" class="logo">MVP</a>
+
+        <a th:href="@{/movies/tmdb/popular}"
+           th:classappend="${#httpServletRequest.getRequestURI().contains('/popular')} ? 'active' : ''">Phổ Biến</a>
+        <a th:href="@{/movies/tmdb/now-playing}"
+           th:classappend="${#httpServletRequest.getRequestURI().contains('/now-playing')} ? 'active' : ''">Đang Chiếu</a>
+        <a th:href="@{/movies/tmdb/upcoming}"
+           th:classappend="${#httpServletRequest.getRequestURI().contains('/upcoming')} ? 'active' : ''">Sắp Chiếu</a>
+        <a th:href="@{/movies/tmdb/top-rated}"
+           th:classappend="${#httpServletRequest.getRequestURI().contains('/top-rated')} ? 'active' : ''">Xếp Hạng Cao</a>
+    </div>
+
+    <div class="header-right">
+        <form th:action="@{/movies/tmdb/search}" method="get" class="header-search-form">
+            <button type="submit">🔍</button>
+            <input type="text" name="query" placeholder="Tìm phim..." required />
+        </form>
+
+        <th:block sec:authorize="isAuthenticated()">
+            <a th:href="@{/profile/watchlist}" class="nav-link">Watchlist</a>
+            <a th:href="@{/profile}" th:text="'Chào, ' + ${#authentication.name}" class="nav-link"></a>
+            <form th:action="@{/perform_logout}" method="post" style="display: inline;">
+                <button type="submit" class="logout-button-nav">Đăng Xuất</button>
+            </form>
+        </th:block>
+
+        <th:block sec:authorize="!isAuthenticated()">
+            <a th:href="@{/login}" class="nav-link">Đăng Nhập</a>
+            <a th:href="@{/register}" class="nav-link">Đăng Ký</a>
+        </th:block>
+    </div>
+
+</header>
+
+</body>
+</html>

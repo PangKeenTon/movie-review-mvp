@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản Lý Đánh Giá - Admin</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+    <style>
+        .admin-nav { background-color: #444; padding: 10px 0; text-align: center; }
+        .admin-nav a { color: #f0f0f0; margin: 0 20px; text-decoration: none; font-weight: bold; }
+        .admin-nav a:hover { color: #fff; text-decoration: underline; }
+        .admin-container { padding: 20px; }
+        .admin-table { width: 100%; border-collapse: collapse; margin-top: 20px; table-layout: fixed; } /* table-layout: fixed để giới hạn độ rộng cột */
+        .admin-table th, .admin-table td { border: 1px solid #ddd; padding: 8px; text-align: left; word-wrap: break-word; /* Cho phép xuống dòng nếu nội dung dài */ }
+        .admin-table th { background-color: #f2f2f2; }
+        .admin-table tr:nth-child(even){background-color: #f9f9f9;}
+        .admin-table tr:hover {background-color: #f1f1f1;}
+        .comment-column { width: 40%; } /* Đặt độ rộng cho cột bình luận */
+        .action-column { width: 10%; text-align: center;}
+        .delete-button {
+            background-color: #d9534f; color: white; border: none;
+            padding: 5px 10px; border-radius: 3px; cursor: pointer;
+        }
+        .delete-button:hover { background-color: #c9302c; }
+        .alert { padding: 15px; margin-bottom: 20px; border: 1px solid transparent; border-radius: 4px; }
+        .success-message.alert { color: #155724; background-color: #d4edda; border-color: #c3e6cb; }
+        .error-message.alert { color: #721c24; background-color: #f8d7da; border-color: #f5c6cb; }
+    </style>
+</head>
+<body>
+<header>
+    <nav class="admin-nav">
+        <a th:href="@{/}">Trang Chủ (User View)</a>
+        <a th:href="@{/admin/dashboard}">Admin Dashboard</a>
+        <a th:href="@{/admin/users/list}">Quản Lý Người Dùng</a>
+        <a th:href="@{/admin/reviews/list}" style="font-weight: bold; text-decoration: underline;">Quản Lý Đánh Giá</a>
+        <span style="float: right; margin-right: 20px;">
+                <span style="color: #f0f0f0;">Chào Admin, <span sec:authentication="name">AdminUser</span>!</span>
+                <form th:action="@{/perform_logout}" method="post" style="display: inline; margin-left: 10px;">
+                    <button type="submit" class="logout-button" style="background-color: #d9534f;">Đăng Xuất</button>
+                </form>
+            </span>
+    </nav>
+</header>
+
+<main class="admin-container">
+    <h1>Danh Sách Tất Cả Đánh Giá</h1>
+
+    <div th:if="${successMessage}" class="success-message alert" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}" class="error-message alert" th:text="${errorMessage}"></div>
+
+    <div th:if="${not #lists.isEmpty(reviews)}">
+        <table class="admin-table">
+            <thead>
+            <tr>
+                <th>ID Review</th>
+                <th>Phim (ID)</th>
+                <th>Người dùng (Username)</th>
+                <th>Điểm</th>
+                <th class="comment-column">Bình luận</th>
+                <th>Ngày Đánh Giá</th>
+                <th class="action-column">Hành động</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="review : ${reviews}">
+                <td th:text="${review.id}">1</td>
+                <td>
+                    <a th:if="${review.movie != null}"
+                       th:href="${review.movie.tmdbId != null ? @{/movies/tmdb/details/{id}(id=${review.movie.tmdbId})} : @{/movies/{id}(id=${review.movie.id})}}"
+                       th:text="${review.movie.title} + ' (ID: ' + ${review.movie.id} + ')'">
+                        Tên phim (ID Phim)
+                    </a>
+                    <span th:if="${review.movie == null}">N/A</span>
+                </td>
+                <td th:text="${review.user != null ? review.user.username : 'N/A'}">username</td>
+                <td th:text="${review.ratingValue}">5</td>
+                <td class="comment-column" th:text="${review.commentText}">Nội dung bình luận...</td>
+                <td th:text="${#temporals.format(review.reviewDate, 'HH:mm dd/MM/yyyy')}">dd/MM/yyyy HH:mm</td>
+                <td class="action-column">
+                    <form th:action="@{/admin/reviews/delete/{reviewId}(reviewId=${review.id})}" method="post" onsubmit="return confirm('Bạn có chắc chắn muốn xóa đánh giá này không?');">
+                        <button type="submit" class="delete-button">Xóa</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div th:if="${#lists.isEmpty(reviews)}">
+        <p>Không có đánh giá nào trong hệ thống.</p>
+    </div>
+</main>
+
+<footer style="text-align: center; padding: 20px; background-color: #444; color: #f0f0f0; margin-top: 30px;">
+    <p>&copy; 2025 - Movie Review MVP Admin</p>
+</footer>
+</body>
+</html>

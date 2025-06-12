@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8">
+  <title th:text="'Kết quả tìm kiếm cho: ' + ${query} + ' - Movie Review MVP'"></title>
+  <link rel="stylesheet" th:href="@{/css/style.css}" />
+</head>
+<body>
+<header>
+  <nav>
+    <a th:href="@{/}">Trang Chủ</a>
+    <a th:href="@{/movies}" style="margin-left: 15px;">Phim (Local)</a>
+    <a th:href="@{/movies/tmdb/popular}" style="margin-left: 15px;">Phim Phổ Biến (TMDB)</a>
+    <form th:action="@{/movies/tmdb/search}" method="get" style="display: inline-block; margin-left: 15px;">
+      <input type="text" name="query" th:value="${query}" placeholder="Tìm phim trên TMDB..." required />
+      <button type="submit">Tìm Lại</button>
+    </form>
+    <th:block sec:authorize="!isAuthenticated()">
+      <a th:href="@{/login}" style="margin-left: 15px;">Đăng Nhập</a>
+      <a th:href="@{/register}" style="margin-left: 10px;">Đăng Ký</a>
+    </th:block>
+    <th:block sec:authorize="isAuthenticated()">
+      <span style="margin-left: 15px; color: white;">Chào, <span sec:authentication="name">User</span>!</span>
+      <form th:action="@{/perform_logout}" method="post" style="display: inline; margin-left: 10px;">
+        <button type="submit" class="logout-button">Đăng Xuất</button>
+      </form>
+    </th:block>
+  </nav>
+</header>
+
+<main>
+  <h2 th:text="'Kết quả tìm kiếm cho: ' + ${query}">Kết quả tìm kiếm</h2>
+
+  <div th:if="${searchResult != null and searchResult.results != null and not #lists.isEmpty(searchResult.results)}">
+    <p th:text="'Tìm thấy ' + ${searchResult.totalResults} + ' kết quả (Trang ' + ${searchResult.page} + ' của ' + ${searchResult.totalPages} + ')'"></p>
+
+    <div class="movie-grid">
+      <div class="movie-card-item tmdb-movie-card" th:each="movie : ${searchResult.results}">
+        <a th:href="@{/movies/tmdb/details/{id}(id=${movie.id})}">
+          <img th:if="${movie.posterPath != null and !movie.posterPath.isEmpty()}"
+               th:src="${tmdbImageBaseUrl + movie.posterPath}"
+               th:alt="${movie.title}" class="movie-poster-list"/>
+          <img th:unless="${movie.posterPath != null and !movie.posterPath.isEmpty()}"
+               th:src="@{/images/default-poster.png}" alt="Default Poster" class="movie-poster-list"/>
+          <h3 th:text="${movie.title}">Tên Phim</h3>
+        </a>
+        <p th:if="${movie.releaseDate != null and !movie.releaseDate.isEmpty()}"
+           th:text="'Ngày phát hành: ' + ${movie.releaseDate}">Ngày Phát Hành</p>
+        <p th:if="${movie.voteAverage != null}"
+           th:text="'Đánh giá TMDB: ' + ${#numbers.formatDecimal(movie.voteAverage, 1, 1)} + '/10'">Đánh giá</p>
+      </div>
+    </div>
+
+    <div class="pagination" style="margin-top: 20px; text-align: center;" th:if="${searchResult.totalPages > 1}">
+      <a th:if="${searchResult.page > 1}"
+         th:href="@{/movies/tmdb/search(query=${query}, page=${searchResult.page - 1})}"
+         class="button-page">
+        &laquo; Trang Trước
+      </a>
+      <span th:unless="${searchResult.page > 1}" class="button-page disabled">&laquo; Trang Trước</span>
+
+      <span style="margin: 0 10px;"
+            th:text="'Trang ' + ${searchResult.page} + ' / ' + ${searchResult.totalPages}">
+                      Trang X / Y
+                </span>
+
+      <a th:if="${searchResult.page < searchResult.totalPages}"
+         th:href="@{/movies/tmdb/search(query=${query}, page=${searchResult.page + 1})}"
+         class="button-page">
+        Trang Tiếp &raquo;
+      </a>
+      <span th:unless="${searchResult.page < searchResult.totalPages}" class="button-page disabled">Trang Tiếp &raquo;</span>
+    </div>
+
+  </div>
+  <div th:if="${searchResult == null or searchResult.results == null or #lists.isEmpty(searchResult.results)}">
+    <p>Không tìm thấy kết quả nào phù hợp với từ khóa của bạn.</p>
+  </div>
+</main>
+
+<footer>
+  <p>&copy; 2025 - Movie Review MVP Project</p>
+</footer>
+</body>
+</html>

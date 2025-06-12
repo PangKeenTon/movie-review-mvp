@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Review MVP</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="nav-left">
+                <a href="/" class="logo">MovieReview</a>
+                <a th:href="@{/movies}" class="nav-link">Movies</a>
+                <a th:href="@{/movies/tmdb/popular}" class="nav-link">Popular</a>
+            </div>
+            
+            <form th:action="@{/movies/tmdb/search}" method="get" class="search-form">
+                <input type="text" name="query" placeholder="Search movies..." required />
+                <button type="submit">
+                    <i class="fas fa-search"></i>
+                </button>
+            </form>
+
+            <div class="nav-right">
+                <th:block sec:authorize="!isAuthenticated()">
+                    <a th:href="@{/login}" class="button button-secondary">Login</a>
+                    <a th:href="@{/register}" class="button button-primary">Register</a>
+                </th:block>
+                
+                <th:block sec:authorize="isAuthenticated()">
+                    <a th:href="@{/profile}" class="nav-link">
+                        <i class="fas fa-user"></i>
+                        <span sec:authentication="name">User</span>
+                    </a>
+                    <form th:action="@{/perform_logout}" method="post" style="display: inline;">
+                        <button type="submit" class="button button-secondary">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Logout
+                        </button>
+                    </form>
+                </th:block>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero">
+            <h1>Welcome to Movie Review MVP</h1>
+            <p>Discover, rate, and review your favorite movies</p>
+        </section>
+
+        <section class="featured-movies">
+            <h2>Featured Movies</h2>
+            <div class="movie-grid">
+                <!-- Featured movies will be loaded here -->
+                <div class="loading"></div>
+            </div>
+        </section>
+
+        <section class="user-section" sec:authorize="isAuthenticated()">
+            <div class="user-info">
+                <h2>Welcome back, <span sec:authentication="name">User</span>!</h2>
+                <p>Your role: <span sec:authentication="principal.authorities">[ROLE_USER]</span></p>
+                
+                <div class="user-actions">
+                    <a th:href="@{/profile}" class="button button-primary">
+                        <i class="fas fa-user"></i>
+                        View Profile
+                    </a>
+                    <a th:href="@{/watchlist}" class="button button-secondary">
+                        <i class="fas fa-list"></i>
+                        My Watchlist
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section class="guest-section" sec:authorize="!isAuthenticated()">
+            <div class="guest-info">
+                <h2>Join Our Community</h2>
+                <p>Create an account to:</p>
+                <ul>
+                    <li>Rate and review movies</li>
+                    <li>Create your watchlist</li>
+                    <li>Follow other reviewers</li>
+                    <li>Get personalized recommendations</li>
+                </ul>
+                <div class="guest-actions">
+                    <a th:href="@{/register}" class="button button-primary">Sign Up Now</a>
+                    <a th:href="@{/login}" class="button button-secondary">Login</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="admin-section" sec:authorize="hasRole('ADMIN')">
+            <div class="admin-info">
+                <h2>Admin Dashboard</h2>
+                <p>Manage your movie review platform</p>
+                <div class="admin-actions">
+                    <a th:href="@{/admin/dashboard}" class="button button-primary">
+                        <i class="fas fa-tachometer-alt"></i>
+                        Go to Dashboard
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Movie Review MVP</h3>
+                <p>Your ultimate destination for movie reviews and recommendations</p>
+            </div>
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a th:href="@{/movies}">Movies</a></li>
+                    <li><a th:href="@{/movies/tmdb/popular}">Popular</a></li>
+                    <li><a th:href="@{/about}">About</a></li>
+                    <li><a th:href="@{/contact}">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Connect With Us</h3>
+                <div class="social-links">
+                    <a href="#" class="social-link"><i class="fab fa-facebook"></i></a>
+                    <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 Movie Review MVP. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>

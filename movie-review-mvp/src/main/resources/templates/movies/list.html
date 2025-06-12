@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8">
+  <title>Danh Sách Phim - Movie Review MVP</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}" />
+</head>
+<body>
+<header>
+  <nav>
+    <a th:href="@{/}">Trang Chủ</a>
+    <a th:href="@{/movies}" style="margin-left: 15px; font-weight: bold;">Phim (Local)</a>
+    <a th:href="@{/movies/tmdb/popular}" style="margin-left: 15px;">Phim Phổ Biến (TMDB)</a>
+    <form th:action="@{/movies/tmdb/search}" method="get" style="display: inline-block; margin-left: 15px;">
+      <input type="text" name="query" placeholder="Tìm phim trên TMDB..." required style="padding: 5px; border-radius: 3px; border: 1px solid #ccc;" />
+      <button type="submit" style="padding: 5px 10px; background-color: #5cb85c; color: white; border: none; border-radius: 3px; cursor: pointer;">Tìm</button>
+    </form>
+    <th:block sec:authorize="!isAuthenticated()" style="float: right;">
+      <a th:href="@{/login}" style="margin-left: 15px;">Đăng Nhập</a>
+      <a th:href="@{/register}" style="margin-left: 10px;">Đăng Ký</a>
+    </th:block>
+    <th:block sec:authorize="isAuthenticated()" style="float: right;">
+      <span style="margin-left: 15px; color: white;">Chào, <span sec:authentication="name">User</span>!</span>
+      <form th:action="@{/perform_logout}" method="post" style="display: inline; margin-left: 10px;">
+        <button type="submit" class="logout-button">Đăng Xuất</button>
+      </form>
+    </th:block>
+  </nav>
+</header>
+
+<main>
+  <h2>Danh Sách Phim</h2>
+  <div class="movie-grid" th:if="${not #lists.isEmpty(movies)}">
+    <div class="movie-card-item" th:each="movie : ${movies}">
+      <a th:href="@{/movies/{id}(id=${movie.id})}">
+        <img th:if="${movie.posterUrl != null and !movie.posterUrl.isEmpty()}"
+             th:src="@{${movie.posterUrl.startsWith('http') ? movie.posterUrl : '/images/posters/' + movie.posterUrl.replace('/images/posters/', '')}}"
+             th:alt="${movie.title}" class="movie-poster-list"/>
+        <img th:unless="${movie.posterUrl != null and !movie.posterUrl.isEmpty()}"
+             th:src="@{/images/default-poster.png}" alt="Default Poster" class="movie-poster-list"/>
+
+        <h3 th:text="${movie.title}">Tên Phim</h3>
+      </a>
+      <p th:if="${movie.releaseYear != null}" th:text="'Năm: ' + ${movie.releaseYear}">Năm Phát Hành</p>
+    </div>
+  </div>
+  <div th:if="${#lists.isEmpty(movies)}">
+    <p>Hiện chưa có phim nào trong danh sách.</p>
+  </div>
+</main>
+
+<footer>
+  <p>&copy; 2025 - Movie Review MVP Project</p>
+</footer>
+</body>
+</html>

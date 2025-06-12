@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Đăng Ký Tài Khoản</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}" />
+</head>
+<body>
+<header>
+  <nav>
+    <a th:href="@{/}">Trang Chủ</a>
+    <a th:href="@{/login}" style="margin-left: 20px;">Đăng Nhập</a>
+  </nav>
+</header>
+
+<main>
+  <h2>Tạo Tài Khoản Mới</h2>
+
+  <div th:if="${registrationError}" class="error-message" th:text="${registrationError}">
+    Lỗi đăng ký chung.
+  </div>
+
+  <form th:action="@{/register}" th:object="${userDto}" method="post" class="registration-form">
+    <div>
+      <label for="username">Tên đăng nhập:</label>
+      <input type="text" id="username" th:field="*{username}" required autofocus />
+      <p th:if="${#fields.hasErrors('username')}" th:errors="*{username}" class="error-message"></p>
+    </div>
+
+    <div>
+      <label for="email">Email:</label>
+      <input type="email" id="email" th:field="*{email}" required />
+      <p th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="error-message"></p>
+    </div>
+
+    <div>
+      <label for="password">Mật khẩu:</label>
+      <input type="password" id="password" th:field="*{password}" required />
+      <p th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="error-message"></p>
+    </div>
+
+    <div>
+      <label for="confirmPassword">Xác nhận mật khẩu:</label>
+      <input type="password" id="confirmPassword" th:field="*{confirmPassword}" required />
+      <p th:if="${#fields.hasErrors('confirmPassword')}" th:errors="*{confirmPassword}" class="error-message"></p>
+    </div>
+
+    <div>
+      <button type="submit">Đăng Ký</button>
+    </div>
+  </form>
+</main>
+
+<footer>
+  <p>&copy; 2025 - Movie Review MVP Project</p>
+</footer>
+</body>
+</html>
