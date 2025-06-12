@@ -13,6 +13,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.List; // THÊM IMPORT NÀY
 import java.util.Set;
@@ -35,14 +36,26 @@ public class ProfileController {
 
     // Phương thức hiển thị trang profile chính
     @GetMapping
-    public String userProfile(Model model, @AuthenticationPrincipal UserDetails currentUser) {
+    public String userProfile(HttpServletRequest request, Model model, @AuthenticationPrincipal UserDetails currentUser) {
+        String requestURI = request.getRequestURI();
+        if (request.getQueryString() != null) {
+            requestURI += "?" + request.getQueryString();
+        }
+        model.addAttribute("currentUri", request.getRequestURI());
+        model.addAttribute("currentUrl", requestURI);
         model.addAttribute("currentUser", currentUser);
         return "profile/index";
     }
 
     // Phương thức hiển thị watchlist
     @GetMapping("/watchlist")
-    public String userWatchlist(Model model, @AuthenticationPrincipal UserDetails currentUser) {
+    public String userWatchlist(HttpServletRequest request, Model model, @AuthenticationPrincipal UserDetails currentUser) {
+        String requestURI = request.getRequestURI();
+        if (request.getQueryString() != null) {
+            requestURI += "?" + request.getQueryString();
+        }
+        model.addAttribute("currentUri", request.getRequestURI());
+        model.addAttribute("currentUrl", requestURI);
         if (currentUser != null) {
             Set<Movie> watchlistMovies = watchlistService.getWatchlistForUser(currentUser.getUsername());
             model.addAttribute("watchlistMovies", watchlistMovies);
@@ -53,7 +66,13 @@ public class ProfileController {
 
     // Phương thức hiển thị các đánh giá của user
     @GetMapping("/reviews")
-    public String userReviews(Model model, @AuthenticationPrincipal UserDetails currentUser) {
+    public String userReviews(HttpServletRequest request, Model model, @AuthenticationPrincipal UserDetails currentUser) {
+        String requestURI = request.getRequestURI();
+        if (request.getQueryString() != null) {
+            requestURI += "?" + request.getQueryString();
+        }
+        model.addAttribute("currentUri", request.getRequestURI());
+        model.addAttribute("currentUrl", requestURI);
         if (currentUser != null) {
             List<Review> userReviews = reviewService.getReviewsByUsername(currentUser.getUsername());
             model.addAttribute("userReviews", userReviews);

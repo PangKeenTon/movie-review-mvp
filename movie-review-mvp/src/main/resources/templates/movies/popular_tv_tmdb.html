@@ -7,34 +7,7 @@
   <link rel="stylesheet" th:href="@{/css/style.css}" />
 </head>
 <body>
-<header class="main-header">
-  <nav class="main-nav">
-    <div class="nav-links">
-      <a th:href="@{/}">Trang Chủ</a>
-      <th:block sec:authorize="hasRole('ADMIN')">
-        <a th:href="@{/movies}">Phim (Local)</a>
-      </th:block>
-      <a th:href="@{/movies/tmdb/popular}">Phim Phổ Biến (TMDB)</a>
-      <a th:href="@{/movies/tmdb/tv/popular}" class="active">Chương Trình TV (TMDB)</a>
-    </div>
-    <form th:action="@{/movies/tmdb/search}" method="get" class="tmdb-search-form">
-      <input type="text" name="query" placeholder="Tìm phim trên TMDB..." required />
-      <button type="submit">Tìm</button>
-    </form>
-    <div class="header-right">
-      <th:block sec:authorize="!isAuthenticated()">
-        <a th:href="@{/login}">Đăng Nhập</a>
-        <a th:href="@{/register}">Đăng Ký</a>
-      </th:block>
-      <th:block sec:authorize="isAuthenticated()">
-        <span class="user-greeting">Chào, <span sec:authentication="name">User</span>!</span>
-        <form th:action="@{/perform_logout}" method="post" style="display: inline;">
-          <button type="submit" class="logout-button">Đăng Xuất</button>
-        </form>
-      </th:block>
-    </div>
-  </nav>
-</header>
+<header th:replace="~{fragments/header :: header}"></header>
 
 <main>
   <h2 th:text="${pageTitle}">Chương Trình TV Phổ Biến từ TMDB</h2>

@@ -135,6 +135,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set; // THÊM IMPORT NÀY
 import java.util.stream.Collectors; // THÊM IMPORT NÀY
+import jakarta.servlet.http.HttpServletRequest;
 
 
 @Controller
@@ -160,30 +161,41 @@ public class AdminController {
     }
 
     @GetMapping("/dashboard")
-    public String adminDashboard(Model model) {
+    public String adminDashboard(HttpServletRequest request, Model model) {
+        String requestURI = request.getRequestURI();
+        if (request.getQueryString() != null) {
+            requestURI += "?" + request.getQueryString();
+        }
+        model.addAttribute("currentUri", request.getRequestURI());
+        model.addAttribute("currentUrl", requestURI);
         return "admin/dashboard";
     }
 
     // --- Quản Lý Người Dùng ---
     @GetMapping("/users/list")
-    public String listUsers(Model model) {
-        List<User> userList = userService.getAllUsers();
-        model.addAttribute("users", userList);
+    public String listUsers(HttpServletRequest request, Model model) {
+        String requestURI = request.getRequestURI();
+        if (request.getQueryString() != null) {
+            requestURI += "?" + request.getQueryString();
+        }
+        model.addAttribute("currentUri", request.getRequestURI());
+        model.addAttribute("currentUrl", requestURI);
+        List<User> users = userService.getAllUsers();
+        model.addAttribute("users", users);
         return "admin/user-list";
     }
 
     // --- Quản Lý Đánh Giá ---
     @GetMapping("/reviews/list")
-    public String listReviews(Model model) {
-        List<Review> reviewList = reviewService.getAllReviews();
-        model.addAttribute("reviews", reviewList);
-        // ... (thêm flash attributes nếu có)
-        if (model.containsAttribute("successMessage")) {
-            model.addAttribute("successMessage", model.getAttribute("successMessage"));
+    public String listReviews(HttpServletRequest request, Model model) {
+        String requestURI = request.getRequestURI();
+        if (request.getQueryString() != null) {
+            requestURI += "?" + request.getQueryString();
         }
-        if (model.containsAttribute("errorMessage")) {
-            model.addAttribute("errorMessage", model.getAttribute("errorMessage"));
-        }
+        model.addAttribute("currentUri", request.getRequestURI());
+        model.addAttribute("currentUrl", requestURI);
+        List<Review> reviews = reviewService.getAllReviews();
+        model.addAttribute("reviews", reviews);
         return "admin/review-list";
     }
 
@@ -204,26 +216,42 @@ public class AdminController {
     // --- PHƯƠNG THỨC MỚI CHO QUẢN LÝ PHIM CỤC BỘ ---
 
     @GetMapping("/movies/list-local") // Phân biệt với /movies của người dùng
-    public String listLocalMovies(Model model) {
-        List<Movie> movieList = movieService.getAllMovies(); // Lấy tất cả phim (bao gồm cả phim tạo từ TMDB)
-        // Nếu bạn chỉ muốn phim do admin tự thêm (không có tmdbId), bạn cần thêm phương thức vào MovieRepository/Service
-        // Ví dụ: List<Movie> localOnlyMovies = movieRepository.findByTmdbIdIsNull();
-        model.addAttribute("movies", movieList);
-        return "admin/movies/list-local"; // Template mới: /templates/admin/movies/list-local.html
+    public String listLocalMovies(HttpServletRequest request, Model model) {
+        String requestURI = request.getRequestURI();
+        if (request.getQueryString() != null) {
+            requestURI += "?" + request.getQueryString();
+        }
+        model.addAttribute("currentUri", request.getRequestURI());
+        model.addAttribute("currentUrl", requestURI);
+        List<Movie> movies = movieService.getAllMovies();
+        model.addAttribute("movies", movies);
+        return "admin/movie-list-local";
     }
 
     // Hiển thị form để thêm phim cục bộ mới
     @GetMapping("/movies/add")
-    public String showAddMovieForm(Model model) {
-        model.addAttribute("movie", new Movie()); // Movie object rỗng cho form
-        model.addAttribute("allGenres", genreRepository.findAll()); // Lấy tất cả genres cho selection
+    public String showAddMovieForm(HttpServletRequest request, Model model) {
+        String requestURI = request.getRequestURI();
+        if (request.getQueryString() != null) {
+            requestURI += "?" + request.getQueryString();
+        }
+        model.addAttribute("currentUri", request.getRequestURI());
+        model.addAttribute("currentUrl", requestURI);
+        model.addAttribute("movie", new Movie());
+        model.addAttribute("allGenres", genreRepository.findAll());
         model.addAttribute("pageTitle", "Thêm Phim Mới");
-        return "admin/movies/form-local"; // Template form chung cho add/edit
+        return "admin/movies/form-local";
     }
 
     // Hiển thị form để sửa phim cục bộ
     @GetMapping("/movies/edit/{id}")
-    public String showEditMovieForm(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
+    public String showEditMovieForm(@PathVariable Long id, HttpServletRequest request, Model model, RedirectAttributes redirectAttributes) {
+        String requestURI = request.getRequestURI();
+        if (request.getQueryString() != null) {
+            requestURI += "?" + request.getQueryString();
+        }
+        model.addAttribute("currentUri", request.getRequestURI());
+        model.addAttribute("currentUrl", requestURI);
         Optional<Movie> movieOptional = movieService.getMovieById(id);
         if (movieOptional.isPresent()) {
             Movie movie = movieOptional.get();

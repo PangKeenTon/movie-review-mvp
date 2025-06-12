@@ -3,41 +3,44 @@
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <body>
 
-<header th:fragment="header" class="main-header">
-
-    <div class="header-left">
-        <a th:href="@{/}" class="logo">MVP</a>
-
-        <a th:href="@{/movies/tmdb/popular}"
-           th:classappend="${#httpServletRequest.getRequestURI().contains('/popular')} ? 'active' : ''">Phổ Biến</a>
-        <a th:href="@{/movies/tmdb/now-playing}"
-           th:classappend="${#httpServletRequest.getRequestURI().contains('/now-playing')} ? 'active' : ''">Đang Chiếu</a>
-        <a th:href="@{/movies/tmdb/upcoming}"
-           th:classappend="${#httpServletRequest.getRequestURI().contains('/upcoming')} ? 'active' : ''">Sắp Chiếu</a>
-        <a th:href="@{/movies/tmdb/top-rated}"
-           th:classappend="${#httpServletRequest.getRequestURI().contains('/top-rated')} ? 'active' : ''">Xếp Hạng Cao</a>
+<header class="main-header">
+  <nav class="main-nav">
+    <div class="nav-left">
+      <a href="/" class="logo">MovieReview</a>
+      <th:block sec:authorize="hasRole('ADMIN')">
+        <a th:href="@{/movies}" class="nav-link" th:classappend="${currentUri.startsWith('/movies') and not currentUri.startsWith('/movies/tmdb') ? 'active' : ''}">Phim (Local)</a>
+      </th:block>
+      <a th:href="@{/movies/tmdb/popular}" class="nav-link" th:classappend="${currentUri.startsWith('/movies/tmdb/popular') ? 'active' : ''}">Phim Phổ Biến</a>
+      <a th:href="@{/movies/tmdb/tv/popular}" class="nav-link" th:classappend="${currentUri.startsWith('/movies/tmdb/tv/popular') ? 'active' : ''}">Chương Trình TV</a>
     </div>
 
-    <div class="header-right">
-        <form th:action="@{/movies/tmdb/search}" method="get" class="header-search-form">
-            <button type="submit">🔍</button>
-            <input type="text" name="query" placeholder="Tìm phim..." required />
+    <form th:action="@{/movies/tmdb/search}" method="get" class="search-form">
+      <input type="text" name="query" placeholder="Tìm phim..." th:value="${query}" required />
+      <button type="submit">
+        <i class="fas fa-search"></i>
+      </button>
+    </form>
+
+    <div class="nav-right">
+      <th:block sec:authorize="!isAuthenticated()">
+        <a th:href="@{/login}" class="button button-secondary">Login</a>
+        <a th:href="@{/register}" class="button button-primary">Register</a>
+      </th:block>
+
+      <th:block sec:authorize="isAuthenticated()">
+        <a th:href="@{/profile}" class="nav-link">
+          <i class="fas fa-user"></i>
+          <span sec:authentication="name">User</span>
+        </a>
+        <form th:action="@{/perform_logout}" method="post" style="display: inline;">
+          <button type="submit" class="button button-secondary logout-button">
+            <i class="fas fa-sign-out-alt"></i>
+            Logout
+          </button>
         </form>
-
-        <th:block sec:authorize="isAuthenticated()">
-            <a th:href="@{/profile/watchlist}" class="nav-link">Watchlist</a>
-            <a th:href="@{/profile}" th:text="'Chào, ' + ${#authentication.name}" class="nav-link"></a>
-            <form th:action="@{/perform_logout}" method="post" style="display: inline;">
-                <button type="submit" class="logout-button-nav">Đăng Xuất</button>
-            </form>
-        </th:block>
-
-        <th:block sec:authorize="!isAuthenticated()">
-            <a th:href="@{/login}" class="nav-link">Đăng Nhập</a>
-            <a th:href="@{/register}" class="nav-link">Đăng Ký</a>
-        </th:block>
+      </th:block>
     </div>
-
+  </nav>
 </header>
 
 </body>

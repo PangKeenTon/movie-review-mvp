@@ -28,12 +28,9 @@ public class CustomUserDetailsService implements UserDetailsService {
 
         // Chuyển đổi chuỗi vai trò (ví dụ: "ROLE_USER,ROLE_ADMIN") thành Collection<GrantedAuthority>
         Collection<? extends GrantedAuthority> authorities =
-                Arrays.stream(user.getRoles().split(",")) // Tách chuỗi vai trò bằng dấu phẩy
-                        .map(String::trim) // Loại bỏ khoảng trắng thừa
-                        .filter(role -> !role.isEmpty()) // Bỏ qua vai trò rỗng nếu có
-                        .map(SimpleGrantedAuthority::new) // Tạo đối tượng SimpleGrantedAuthority
+                user.getRoles().stream()
+                        .map(role -> new SimpleGrantedAuthority(role.getName()))
                         .collect(Collectors.toList());
-
         return new org.springframework.security.core.userdetails.User(
                 user.getUsername(),
                 user.getPassword(), // Mật khẩu đã được mã hóa trong CSDL

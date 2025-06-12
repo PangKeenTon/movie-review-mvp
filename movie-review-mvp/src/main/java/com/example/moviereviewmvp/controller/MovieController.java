@@ -58,14 +58,26 @@ public class MovieController { // <-- NGOẶC MỞ CỦA LỚP
 
     // --- Các mapping cho phim lưu cục bộ ---
     @GetMapping
-    public String listMovies(Model model) {
+    public String listMovies(HttpServletRequest request, Model model) {
+        String requestURI = request.getRequestURI();
+        if (request.getQueryString() != null) {
+            requestURI += "?" + request.getQueryString();
+        }
+        model.addAttribute("currentUri", request.getRequestURI());
+        model.addAttribute("currentUrl", requestURI);
         List<Movie> movies = movieService.getAllMovies();
         model.addAttribute("movies", movies);
         return "movies/list";
     }
 
     @GetMapping("/{id}")
-    public String movieDetails(@PathVariable Long id, Model model) {
+    public String movieDetails(@PathVariable Long id, HttpServletRequest request, Model model) {
+        String requestURI = request.getRequestURI();
+        if (request.getQueryString() != null) {
+            requestURI += "?" + request.getQueryString();
+        }
+        model.addAttribute("currentUri", request.getRequestURI());
+        model.addAttribute("currentUrl", requestURI);
         Optional<Movie> movieOptional = movieService.getMovieById(id);
         if (movieOptional.isPresent()) {
             Movie movie = movieOptional.get();
@@ -131,7 +143,14 @@ public class MovieController { // <-- NGOẶC MỞ CỦA LỚP
 
     // --- CÁC MAPPING CHO TMDB API ---
     @GetMapping("/tmdb/popular")
-    public String listPopularTmdbMovies(@RequestParam(name = "page", defaultValue = "1") int page, Model model) {
+    public String listPopularTmdbMovies(@RequestParam(name = "page", defaultValue = "1") int page,
+                                        HttpServletRequest request, Model model) {
+        String requestURI = request.getRequestURI();
+        if (request.getQueryString() != null) {
+            requestURI += "?" + request.getQueryString();
+        }
+        model.addAttribute("currentUri", request.getRequestURI());
+        model.addAttribute("currentUrl", requestURI);
         List<TmdbMovieDto> popularMovies = tmdbService.getPopularMovies(page);
         model.addAttribute("movies", popularMovies);
         model.addAttribute("tmdbImageBaseUrl", tmdbImageBaseUrl + "w500");
@@ -144,8 +163,13 @@ public class MovieController { // <-- NGOẶC MỞ CỦA LỚP
     @GetMapping("/tmdb/search")
     public String searchTmdbMovies(@RequestParam("query") String query,
                                    @RequestParam(name = "page", defaultValue = "1") int page,
-                                   Model model) {
-        // ... (code phương thức này giữ nguyên)
+                                   HttpServletRequest request, Model model) {
+        String requestURI = request.getRequestURI();
+        if (request.getQueryString() != null) {
+            requestURI += "?" + request.getQueryString();
+        }
+        model.addAttribute("currentUri", request.getRequestURI());
+        model.addAttribute("currentUrl", requestURI);
         if (query == null || query.trim().isEmpty()) {
             return "redirect:/";
         }
@@ -162,6 +186,12 @@ public class MovieController { // <-- NGOẶC MỞ CỦA LỚP
                                        Model model,
                                        RedirectAttributes redirectAttributes,
                                        HttpServletRequest request) { // Thêm HttpServletRequest vào tham số
+        String requestURI = request.getRequestURI();
+        if (request.getQueryString() != null) {
+            requestURI += "?" + request.getQueryString();
+        }
+        model.addAttribute("currentUri", request.getRequestURI());
+        model.addAttribute("currentUrl", requestURI);
 
         logger.info("Fetching details for TMDB movie ID: {}", tmdbMovieId);
         TmdbMovieDetailsDto tmdbDetails = tmdbService.getMovieDetails(tmdbMovieId);
@@ -213,63 +243,78 @@ public class MovieController { // <-- NGOẶC MỞ CỦA LỚP
         }
         model.addAttribute("isInWatchlist", isInWatchlist);
 
-        // **THAY ĐỔI ĐỂ SỬA LỖI TemplateInputException**
-        // Lấy URL hiện tại và truyền vào model để sử dụng cho link đăng nhập
-        String requestURI = request.getRequestURI();
-        if (request.getQueryString() != null) {
-            requestURI += "?" + request.getQueryString();
-        }
-        model.addAttribute("currentUrl", requestURI);
-
         return "movies/details_tmdb";
     }
 
     // --- CÁC PHƯƠNG THỨC MỚI CHO TÍNH NĂNG KHÁM PHÁ ---
 
     @GetMapping("/tmdb/now-playing")
-    public String listNowPlayingMovies(@RequestParam(name = "page", defaultValue = "1") int page, Model model) {
-        List<TmdbMovieDto> movies = tmdbService.getNowPlayingMovies(page);
-        model.addAttribute("movies", movies);
+    public String listNowPlayingMovies(@RequestParam(name = "page", defaultValue = "1") int page,
+                                       HttpServletRequest request, Model model) {
+        String requestURI = request.getRequestURI();
+        if (request.getQueryString() != null) {
+            requestURI += "?" + request.getQueryString();
+        }
+        model.addAttribute("currentUri", request.getRequestURI());
+        model.addAttribute("currentUrl", requestURI);
+        List<TmdbMovieDto> nowPlayingMovies = tmdbService.getNowPlayingMovies(page);
+        model.addAttribute("movies", nowPlayingMovies);
         model.addAttribute("tmdbImageBaseUrl", tmdbImageBaseUrl + "w500");
         model.addAttribute("currentPage", page);
-        model.addAttribute("pageTitle", "Phim Đang Chiếu");
+        model.addAttribute("pageTitle", "Phim Đang Chiếu (TMDB)");
         model.addAttribute("pageUrl", "/movies/tmdb/now-playing");
-        return "movies/popular_tmdb"; // Tái sử dụng template này
+        return "movies/popular_tmdb";
     }
 
     @GetMapping("/tmdb/upcoming")
-    public String listUpcomingMovies(@RequestParam(name = "page", defaultValue = "1") int page, Model model) {
-        List<TmdbMovieDto> movies = tmdbService.getUpcomingMovies(page);
-        model.addAttribute("movies", movies);
+    public String listUpcomingMovies(@RequestParam(name = "page", defaultValue = "1") int page,
+                                     HttpServletRequest request, Model model) {
+        String requestURI = request.getRequestURI();
+        if (request.getQueryString() != null) {
+            requestURI += "?" + request.getQueryString();
+        }
+        model.addAttribute("currentUri", request.getRequestURI());
+        model.addAttribute("currentUrl", requestURI);
+        List<TmdbMovieDto> upcomingMovies = tmdbService.getUpcomingMovies(page);
+        model.addAttribute("movies", upcomingMovies);
         model.addAttribute("tmdbImageBaseUrl", tmdbImageBaseUrl + "w500");
         model.addAttribute("currentPage", page);
-        model.addAttribute("pageTitle", "Phim Sắp Chiếu");
+        model.addAttribute("pageTitle", "Phim Sắp Chiếu (TMDB)");
         model.addAttribute("pageUrl", "/movies/tmdb/upcoming");
-        return "movies/popular_tmdb"; // Tái sử dụng template này
+        return "movies/popular_tmdb";
     }
 
     @GetMapping("/tmdb/top-rated")
-    public String listTopRatedMovies(@RequestParam(name = "page", defaultValue = "1") int page, Model model) {
-        List<TmdbMovieDto> movies = tmdbService.getTopRatedMovies(page);
-        model.addAttribute("movies", movies);
+    public String listTopRatedMovies(@RequestParam(name = "page", defaultValue = "1") int page,
+                                     HttpServletRequest request, Model model) {
+        String requestURI = request.getRequestURI();
+        if (request.getQueryString() != null) {
+            requestURI += "?" + request.getQueryString();
+        }
+        model.addAttribute("currentUri", request.getRequestURI());
+        model.addAttribute("currentUrl", requestURI);
+        List<TmdbMovieDto> topRatedMovies = tmdbService.getTopRatedMovies(page);
+        model.addAttribute("movies", topRatedMovies);
         model.addAttribute("tmdbImageBaseUrl", tmdbImageBaseUrl + "w500");
         model.addAttribute("currentPage", page);
-        model.addAttribute("pageTitle", "Phim Xếp Hạng Cao");
+        model.addAttribute("pageTitle", "Phim Được Đánh Giá Cao Nhất (TMDB)");
         model.addAttribute("pageUrl", "/movies/tmdb/top-rated");
-        return "movies/popular_tmdb"; // Tái sử dụng template này
+        return "movies/popular_tmdb";
     }
 
     // --- CÁC MAPPING CHO CHƯƠNG TRÌNH TV TMDB ---
 
     @GetMapping("/tmdb/tv/popular")
-    public String listPopularTvShows(@RequestParam(name = "page", defaultValue = "1") int page, Model model) {
-        List<TmdbTvShowDto> tvShows = tmdbService.getPopularTvShows(page);
-        model.addAttribute("tvShows", tvShows);
+    public String listPopularTvShows(@RequestParam(name = "page", defaultValue = "1") int page,
+                                     HttpServletRequest request, Model model) {
+        model.addAttribute("currentUri", request.getRequestURI());
+        List<TmdbTvShowDto> popularTvShows = tmdbService.getPopularTvShows(page);
+        model.addAttribute("tvShows", popularTvShows);
         model.addAttribute("tmdbImageBaseUrl", tmdbImageBaseUrl + "w500");
         model.addAttribute("currentPage", page);
         model.addAttribute("pageTitle", "Chương Trình TV Phổ Biến (TMDB)");
         model.addAttribute("pageUrl", "/movies/tmdb/tv/popular");
-        return "movies/popular_tv_tmdb"; // Sẽ tạo template mới này
+        return "movies/popular_tv_tmdb";
     }
 
 } // <-- NGOẶC ĐÓNG CUỐI CÙNG CỦA LỚP MovieController. Đảm bảo tất cả phương thức nằm trên dòng này.

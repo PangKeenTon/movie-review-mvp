@@ -46,7 +46,7 @@
 }
 
 .auth-card {
-  background: rgba(255, 255, 255, 0.1);
+  background: #333333;
   backdrop-filter: blur(10px);
   border-radius: 15px;
   padding: 2rem;
@@ -83,7 +83,7 @@
   padding: 0.8rem 1rem;
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 8px;
-  background: rgba(0, 0, 0, 0.3);
+  background: #555555;
   color: #fff;
   font-size: 1rem;
   transition: all 0.3s ease;
@@ -92,7 +92,7 @@
 .form-group input:focus {
   outline: none;
   border-color: #ffd700;
-  background: rgba(0, 0, 0, 0.4);
+  background: #666666;
 }
 
 .form-group input::placeholder {

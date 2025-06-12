@@ -2,57 +2,62 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
-  <title>Đăng Ký Tài Khoản</title>
+  <title>Đăng Ký Tài Khoản - Movie Review MVP</title>
   <link rel="stylesheet" th:href="@{/css/style.css}" />
+  <link rel="stylesheet" th:href="@{/css/auth.css}" />
 </head>
-<body>
-<header>
-  <nav>
-    <a th:href="@{/}">Trang Chủ</a>
-    <a th:href="@{/login}" style="margin-left: 20px;">Đăng Nhập</a>
-  </nav>
-</header>
+<body class="auth-container">
+  <header class="auth-header">
+    <nav>
+      <a th:href="@{/}">Movie Review MVP</a>
+      <a th:href="@{/login}">Đăng Nhập</a>
+    </nav>
+  </header>
 
-<main>
-  <h2>Tạo Tài Khoản Mới</h2>
+  <main class="auth-main">
+    <div class="auth-card">
+      <h2>Tạo Tài Khoản Mới</h2>
 
-  <div th:if="${registrationError}" class="error-message" th:text="${registrationError}">
-    Lỗi đăng ký chung.
-  </div>
+      <div th:if="${registrationError}" class="error-message" th:text="${registrationError}">
+        Lỗi đăng ký chung.
+      </div>
 
-  <form th:action="@{/register}" th:object="${userDto}" method="post" class="registration-form">
-    <div>
-      <label for="username">Tên đăng nhập:</label>
-      <input type="text" id="username" th:field="*{username}" required autofocus />
-      <p th:if="${#fields.hasErrors('username')}" th:errors="*{username}" class="error-message"></p>
+      <form th:action="@{/register}" th:object="${userDto}" method="post" class="auth-form">
+        <div class="form-group">
+          <label for="username">Tên đăng nhập</label>
+          <input type="text" id="username" th:field="*{username}" required autofocus placeholder="Chọn tên đăng nhập của bạn" />
+          <p th:if="${#fields.hasErrors('username')}" th:errors="*{username}" class="error-message"></p>
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" th:field="*{email}" required placeholder="Nhập email của bạn" />
+          <p th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="error-message"></p>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Mật khẩu</label>
+          <input type="password" id="password" th:field="*{password}" required placeholder="Tạo mật khẩu của bạn" />
+          <p th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="error-message"></p>
+        </div>
+
+        <div class="form-group">
+          <label for="confirmPassword">Xác nhận mật khẩu</label>
+          <input type="password" id="confirmPassword" th:field="*{confirmPassword}" required placeholder="Nhập lại mật khẩu của bạn" />
+          <p th:if="${#fields.hasErrors('confirmPassword')}" th:errors="*{confirmPassword}" class="error-message"></p>
+        </div>
+
+        <button type="submit" class="auth-button">Đăng Ký</button>
+
+        <div class="auth-links">
+          <p>Đã có tài khoản? <a th:href="@{/login}">Đăng nhập ngay</a></p>
+        </div>
+      </form>
     </div>
+  </main>
 
-    <div>
-      <label for="email">Email:</label>
-      <input type="email" id="email" th:field="*{email}" required />
-      <p th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="error-message"></p>
-    </div>
-
-    <div>
-      <label for="password">Mật khẩu:</label>
-      <input type="password" id="password" th:field="*{password}" required />
-      <p th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="error-message"></p>
-    </div>
-
-    <div>
-      <label for="confirmPassword">Xác nhận mật khẩu:</label>
-      <input type="password" id="confirmPassword" th:field="*{confirmPassword}" required />
-      <p th:if="${#fields.hasErrors('confirmPassword')}" th:errors="*{confirmPassword}" class="error-message"></p>
-    </div>
-
-    <div>
-      <button type="submit">Đăng Ký</button>
-    </div>
-  </form>
-</main>
-
-<footer>
-  <p>&copy; 2025 - Movie Review MVP Project</p>
-</footer>
+  <footer class="auth-footer">
+    <p>&copy; 2025 - Movie Review MVP Project</p>
+  </footer>
 </body>
 </html>

@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute; //
 import org.springframework.web.bind.annotation.PostMapping; //
 import org.springframework.web.servlet.mvc.support.RedirectAttributes; //
+import jakarta.servlet.http.HttpServletRequest; // Thêm import này
 
 @Controller
 public class AppController {
@@ -24,17 +25,35 @@ public class AppController {
     }
 
     @GetMapping("/")
-    public String homePage() {
+    public String homePage(HttpServletRequest request, Model model) {
+        String requestURI = request.getRequestURI();
+        if (request.getQueryString() != null) {
+            requestURI += "?" + request.getQueryString();
+        }
+        model.addAttribute("currentUri", request.getRequestURI());
+        model.addAttribute("currentUrl", requestURI);
         return "index";
     }
 
     @GetMapping("/login")
-    public String loginPage() {
+    public String loginPage(HttpServletRequest request, Model model) {
+        String requestURI = request.getRequestURI();
+        if (request.getQueryString() != null) {
+            requestURI += "?" + request.getQueryString();
+        }
+        model.addAttribute("currentUri", request.getRequestURI());
+        model.addAttribute("currentUrl", requestURI);
         return "login";
     }
 
     @GetMapping("/register") //
-    public String showRegistrationForm(Model model) {
+    public String showRegistrationForm(HttpServletRequest request, Model model) {
+        String requestURI = request.getRequestURI();
+        if (request.getQueryString() != null) {
+            requestURI += "?" + request.getQueryString();
+        }
+        model.addAttribute("currentUri", request.getRequestURI());
+        model.addAttribute("currentUrl", requestURI);
         // Tạo một đối tượng DTO rỗng để Thymeleaf form có thể bind dữ liệu vào
         model.addAttribute("userDto", new UserRegistrationDto()); //
         return "register"; // Trả về templates/register.html
@@ -44,7 +63,14 @@ public class AppController {
     public String processRegistration(@Valid @ModelAttribute("userDto") UserRegistrationDto userDto, //
                                       BindingResult bindingResult, //
                                       Model model, //
-                                      RedirectAttributes redirectAttributes) { //
+                                      RedirectAttributes redirectAttributes,
+                                      HttpServletRequest request) { // Thêm HttpServletRequest vào đây
+        String requestURI = request.getRequestURI();
+        if (request.getQueryString() != null) {
+            requestURI += "?" + request.getQueryString();
+        }
+        model.addAttribute("currentUri", request.getRequestURI());
+        model.addAttribute("currentUrl", requestURI);
         // Kiểm tra lỗi validation từ DTO
         if (bindingResult.hasErrors()) {
             // model.addAttribute("userDto", userDto); // Không cần thiết vì @ModelAttribute đã làm
@@ -72,7 +98,7 @@ public class AppController {
                 bindingResult.rejectValue("email", "error.userDto", e.getMessage());
             } else {
                 // Lỗi chung khác
-                model.addAttribute("registrationError", e.getMessage());
+                model.addAttribute("registrationError", "Lỗi đăng ký: " + e.getMessage());
             }
             return "register"; // Quay lại trang đăng ký nếu có lỗi từ service
         }
