@@ -6,50 +6,233 @@
   <title th:text="${tmdbMovie != null ? tmdbMovie.title + ' - Chi Tiết Phim (TMDB)' : 'Chi Tiết Phim'}"></title>
   <link rel="stylesheet" th:href="@{/css/style.css}" />
   <style>
-    /* Thêm một chút style riêng cho trang này nếu cần */
     .backdrop-container {
       width: 100%;
-      height: 450px; /* Hoặc chiều cao bạn muốn */
+      height: 500px;
       background-size: cover;
       background-position: center center;
-      margin-bottom: 20px;
-      border-radius: 8px;
+      margin-bottom: 30px;
+      border-radius: 12px;
       position: relative;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
     }
-    .backdrop-container::before { /* Lớp phủ mờ */
+    .backdrop-container::before {
       content: '';
       position: absolute;
       top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.3);
-      border-radius: 8px;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.8));
+      border-radius: 12px;
     }
     .movie-main-info {
       display: flex;
-      gap: 30px;
+      gap: 40px;
+      margin-top: -100px;
+      position: relative;
+      z-index: 1;
+      padding: 0 20px;
+    }
+    .movie-poster-large {
+      flex-shrink: 0;
     }
     .movie-poster-large img {
-      max-width: 300px; /* Hoặc kích thước bạn muốn cho poster chính */
-      height: auto;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      width: 300px;
+      height: 450px;
+      object-fit: cover;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+      transition: transform 0.3s ease;
+    }
+    .movie-poster-large img:hover {
+      transform: scale(1.02);
     }
     .movie-details-text {
       flex: 1;
+      color: white;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
     }
-    .movie-details-text h1 { margin-top: 0; }
-    .movie-details-text .tagline { font-style: italic; color: #666; margin-bottom: 15px;}
-    .section-title { margin-top: 30px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
-    .cast-list { display: flex; flex-wrap: wrap; gap: 15px; margin-top:15px; }
-    .cast-member { width: 100px; text-align: center; font-size: 0.9em;}
-    .cast-member img { width: 80px; height: 120px; object-fit: cover; border-radius: 4px; margin-bottom: 5px; }
-    .videos-list iframe { margin-top: 15px; border-radius: 8px; }
+    .movie-details-text h1 {
+      font-size: 2.5em;
+      margin: 0 0 10px 0;
+      color: white;
+    }
+    .movie-details-text .tagline {
+      font-size: 1.2em;
+      color: #ffd700;
+      margin-bottom: 20px;
+      font-style: italic;
+    }
+    .movie-meta {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .meta-item {
+      background: rgba(255,255,255,0.1);
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.9em;
+    }
+    .meta-item strong {
+      color: #ffd700;
+    }
+    .section-title {
+      font-size: 1.8em;
+      margin: 40px 0 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid rgba(255,255,255,0.1);
+      color: white;
+    }
+    .cast-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+    .cast-member {
+      text-align: center;
+      transition: transform 0.3s ease;
+    }
+    .cast-member:hover {
+      transform: translateY(-5px);
+    }
+    .cast-member img {
+      width: 120px;
+      height: 180px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    .cast-member p {
+      margin: 5px 0;
+      color: white;
+    }
+    .cast-member p:last-child {
+      font-size: 0.8em;
+      color: #aaa;
+    }
+    .videos-section {
+      margin: 40px 0;
+    }
+    .videos-list {
+      position: relative;
+      padding-bottom: 56.25%;
+      height: 0;
+      overflow: hidden;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    }
+    .videos-list iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+    .watchlist-buttons {
+      margin: 20px 0;
+    }
+    .button-watchlist {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 25px;
+      font-size: 1.1em;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: 600;
+    }
+    .button-watchlist.add {
+      background: #ffd700;
+      color: #000;
+    }
+    .button-watchlist.remove {
+      background: #dc3545;
+      color: white;
+    }
+    .button-watchlist:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    .reviews-section {
+      background: rgba(255,255,255,0.05);
+      padding: 30px;
+      border-radius: 12px;
+      margin-top: 40px;
+    }
+    .add-review-form {
+      background: rgba(255,255,255,0.1);
+      padding: 20px;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+    .form-input {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: white;
+      padding: 10px;
+      border-radius: 4px;
+      width: 100%;
+    }
+    .form-input:focus {
+      outline: none;
+      border-color: #ffd700;
+    }
+    .button-submit-review {
+      background: #ffd700;
+      color: #000;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+    .button-submit-review:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    .review-list {
+      margin-top: 30px;
+    }
+    .review-item {
+      background: rgba(255,255,255,0.05);
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+    }
+    .review-date {
+      color: #aaa;
+      font-size: 0.9em;
+    }
+    .review-comment {
+      margin-top: 10px;
+      line-height: 1.6;
+    }
+    .success-message, .error-message {
+      padding: 15px;
+      border-radius: 8px;
+      margin: 20px 0;
+      text-align: center;
+    }
+    .success-message {
+      background: rgba(40,167,69,0.2);
+      color: #28a745;
+    }
+    .error-message {
+      background: rgba(220,53,69,0.2);
+      color: #dc3545;
+    }
   </style>
 </head>
 <body>
 <header>
   <nav>
     <a th:href="@{/}">Trang Chủ</a>
-    <a th:href="@{/movies}" style="margin-left: 15px;">Phim (Local)</a>
+    <th:block sec:authorize="hasRole('ADMIN')">
+      <a th:href="@{/movies}" style="margin-left: 15px;">Phim (Local)</a>
+    </th:block>
     <a th:href="@{/movies/tmdb/popular}" style="margin-left: 15px;">Phim Phổ Biến (TMDB)</a>
     <form th:action="@{/movies/tmdb/search}" method="get" style="display: inline-block; margin-left: 15px;">
       <input type="text" name="query" placeholder="Tìm phim trên TMDB..." required style="padding: 5px; border-radius: 3px; border: 1px solid #ccc;" />
@@ -88,26 +271,36 @@
     <div class="movie-details-text">
       <h1 th:text="${tmdbMovie.title}">Tên Phim</h1>
       <p class="tagline" th:if="${tmdbMovie.tagline != null and !tmdbMovie.tagline.isEmpty()}" th:text="${tmdbMovie.tagline}"></p>
-      <p><strong>Ngày phát hành:</strong> <span th:text="${tmdbMovie.releaseDate}">N/A</span></p>
-      <p th:if="${tmdbMovie.runtime != null and tmdbMovie.runtime > 0}">
-        <strong>Thời lượng:</strong>
-        <span th:text="${tmdbMovie.runtime / 60}">0</span> giờ
-        <span th:text="${tmdbMovie.runtime % 60}">0</span> phút
-      </p>
-      <p><strong>Điểm TMDB:</strong> <span th:text="${#numbers.formatDecimal(tmdbMovie.voteAverage, 1, 1)} + '/10'">N/A</span></p>
-      <p><strong>Thể loại:</strong>
-        <span th:if="${not #lists.isEmpty(tmdbMovie.genres)}" th:each="genre, iterStat : ${tmdbMovie.genres}">
+      
+      <div class="movie-meta">
+        <div class="meta-item">
+          <strong>Ngày phát hành:</strong>
+          <span th:text="${tmdbMovie.releaseDate}">N/A</span>
+        </div>
+        <div class="meta-item" th:if="${tmdbMovie.runtime != null and tmdbMovie.runtime > 0}">
+          <strong>Thời lượng:</strong>
+          <span th:text="${tmdbMovie.runtime / 60}">0</span> giờ
+          <span th:text="${tmdbMovie.runtime % 60}">0</span> phút
+        </div>
+        <div class="meta-item">
+          <strong>Điểm TMDB:</strong>
+          <span th:text="${#numbers.formatDecimal(tmdbMovie.voteAverage, 1, 1)} + '/10'">N/A</span>
+        </div>
+        <div class="meta-item">
+          <strong>Thể loại:</strong>
+          <span th:if="${not #lists.isEmpty(tmdbMovie.genres)}" th:each="genre, iterStat : ${tmdbMovie.genres}">
             <span th:text="${genre.name}">Thể loại</span><th:block th:if="${!iterStat.last}">, </th:block>
-        </span>
-        <span th:if="${#lists.isEmpty(tmdbMovie.genres)}">Chưa có thông tin</span>
-      </p>
+          </span>
+          <span th:if="${#lists.isEmpty(tmdbMovie.genres)}">Chưa có thông tin</span>
+        </div>
+      </div>
+
       <h3>Mô tả</h3>
       <p th:text="${tmdbMovie.overview}">Mô tả chi tiết phim.</p>
     </div>
   </div>
 
-  <div sec:authorize="isAuthenticated()" class="watchlist-buttons" style="margin-top: 15px; margin-bottom: 15px;">
-
+  <div sec:authorize="isAuthenticated()" class="watchlist-buttons">
     <form th:if="${!isInWatchlist}" th:action="@{/watchlist/add/{movieId}(movieId=${movie.id})}" method="post">
       <button type="submit" class="button-watchlist add">➕ Thêm vào Watchlist</button>
     </form>
@@ -116,6 +309,7 @@
       <button type="submit" class="button-watchlist remove">✔ Đã có trong Watchlist (Xóa)</button>
     </form>
   </div>
+
   <div class="cast-section" th:if="${tmdbMovie.credits != null and not #lists.isEmpty(tmdbMovie.credits.cast)}">
     <h2 class="section-title">Diễn viên nổi bật</h2>
     <div class="cast-list">
@@ -124,10 +318,9 @@
              th:src="${tmdbImageBaseUrl + 'w185' + member.profilePath}"
              th:alt="${member.name}"/>
         <img th:unless="${member.profilePath != null}"
-             th:src="@{/images/default-avatar.png}" alt="No Image"
-             style="width: 80px; height: 120px; object-fit: cover; border-radius: 4px; margin-bottom: 5px; background-color: #eee;"/>
+             th:src="@{/images/default-avatar.png}" alt="No Image"/>
         <p th:text="${member.name}">Tên Diễn viên</p>
-        <p style="font-size:0.8em; color:#555;" th:text="'as ' + ${member.character}">Nhân vật</p>
+        <p th:text="'as ' + ${member.character}">Nhân vật</p>
       </div>
     </div>
   </div>
@@ -135,19 +328,18 @@
   <div class="videos-section" th:if="${trailer.isPresent()}">
     <h2 class="section-title">Trailer</h2>
     <div class="videos-list">
-      <iframe width="720" height="405"
-              th:src="'https://www.youtube.com/embed/' + ${trailer.get().key}"
+      <iframe th:src="'https://www.youtube.com/embed/' + ${trailer.get().key}"
               th:title="${trailer.get().name}"
               frameborder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
               referrerpolicy="strict-origin-when-cross-origin"
               allowfullscreen>
       </iframe>
-      <p th:text="${trailer.get().name}" style="text-align: center; font-style: italic; max-width: 720px; margin: 10px auto 0;"></p>
+      <p th:text="${trailer.get().name}" style="text-align: center; font-style: italic; margin: 10px auto 0;"></p>
     </div>
   </div>
 
-  <div id="reviews-section" style="margin-top:30px; padding-top:20px; border-top: 1px solid #eee;">
+  <div class="reviews-section">
     <h2 class="section-title">Đánh giá phim (<span th:text="${#lists.size(reviews)}">0</span>)</h2>
 
     <div sec:authorize="isAuthenticated()" class="add-review-form">
@@ -163,7 +355,7 @@
         </div>
         <div style="margin-top: 10px;">
           <label for="commentTextTmdb">Bình luận của bạn:</label>
-          <textarea id="commentTextTmdb" th:field="*{commentText}" rows="4" class="form-input" style="width: 90%;"></textarea>
+          <textarea id="commentTextTmdb" th:field="*{commentText}" rows="4" class="form-input"></textarea>
           <p th:if="${#fields.hasErrors('commentText')}" th:errors="*{commentText}" class="error-message"></p>
         </div>
         <div style="margin-top: 10px;">
@@ -173,10 +365,8 @@
     </div>
 
     <div sec:authorize="!isAuthenticated()">
-      p><a th:href="@{/login(redirectUrl=${currentUrl})}">Đăng nhập</a> để để lại đánh giá.</p>
+      <p><a th:href="@{/login(redirectUrl=${currentUrl})}">Đăng nhập</a> để để lại đánh giá.</p>
     </div>
-
-    <hr style="margin-top: 20px; margin-bottom: 20px;">
 
     <div class="review-list" th:if="${not #lists.isEmpty(reviews)}">
       <div th:each="review : ${reviews}" class="review-item">

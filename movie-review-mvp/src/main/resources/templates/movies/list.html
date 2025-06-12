@@ -11,7 +11,9 @@
   <nav class="main-nav">
     <div class="nav-links">
       <a th:href="@{/}">Trang Chủ</a>
-      <a th:href="@{/movies}" class="active">Phim (Local)</a>
+      <th:block sec:authorize="hasRole('ADMIN')">
+        <a th:href="@{/movies}" class="active">Phim (Local)</a>
+      </th:block>
       <a th:href="@{/movies/tmdb/popular}">Phim Phổ Biến (TMDB)</a>
     </div>
     <form th:action="@{/movies/tmdb/search}" method="get" class="tmdb-search-form">

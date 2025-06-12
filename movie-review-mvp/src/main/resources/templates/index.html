@@ -13,7 +13,9 @@
         <nav>
             <div class="nav-left">
                 <a href="/" class="logo">MovieReview</a>
-                <a th:href="@{/movies}" class="nav-link">Movies</a>
+                <th:block sec:authorize="hasRole('ADMIN')">
+                    <a th:href="@{/movies}" class="nav-link">Movies (Local)</a>
+                </th:block>
                 <a th:href="@{/movies/tmdb/popular}" class="nav-link">Popular</a>
                 <a th:href="@{/movies/tmdb/tv/popular}" class="nav-link">TV Shows</a>
             </div>
