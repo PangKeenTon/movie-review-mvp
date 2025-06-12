@@ -262,8 +262,9 @@ main {
     padding: 0.75rem 1.5rem;
     border: none;
     border-radius: var(--border-radius);
+    font-size: 1rem;
+    font-weight: 600;
     cursor: pointer;
-    font-weight: 500;
     transition: all var(--transition-speed);
 }
 
@@ -283,6 +284,21 @@ main {
 
 .button-secondary:hover {
     background-color: rgba(255, 255, 255, 0.2);
+}
+
+.logout-button {
+    background-color: var(--error-color);
+    color: var(--text-color);
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: var(--border-radius);
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background-color var(--transition-speed);
+}
+
+.logout-button:hover {
+    background-color: #c82333; /* Darker red on hover */
 }
 
 /* Forms */
@@ -606,5 +622,196 @@ footer {
 
     .social-links {
         justify-content: center;
+    }
+}
+
+/* Header specific overrides/additions for list.html */
+.main-header {
+    background-color: var(--background-dark);
+    padding: 1rem 2rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.main-nav {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.nav-links a {
+    color: var(--text-color);
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: var(--border-radius);
+    transition: background-color var(--transition-speed);
+    margin-right: 15px;
+}
+
+.nav-links a:last-child {
+    margin-right: 0;
+}
+
+.nav-links a.active {
+    font-weight: bold;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.user-greeting {
+    color: var(--text-color);
+    font-size: 1rem;
+    margin-right: 10px;
+}
+
+/* TMDB Search Form in Header */
+.tmdb-search-form {
+    display: flex;
+    gap: 5px;
+    margin-left: 20px;
+}
+
+.tmdb-search-form input[type="text"] {
+    padding: 8px 12px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: var(--border-radius);
+    background-color: rgba(255, 255, 255, 0.05);
+    color: var(--text-color);
+    font-size: 0.9rem;
+    transition: border-color var(--transition-speed), background-color var(--transition-speed);
+}
+
+.tmdb-search-form input[type="text"]:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.tmdb-search-form button[type="submit"] {
+    padding: 8px 15px;
+    background-color: #5cb85c; /* A green color for search */
+    color: white;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: background-color var(--transition-speed);
+}
+
+.tmdb-search-form button[type="submit"]:hover {
+    background-color: #4cae4c; /* Darker green on hover */
+}
+
+/* Movie Grid on List Page */
+.movie-list-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 25px;
+    padding: 20px 0;
+}
+
+.movie-list-card {
+    background-color: var(--card-background);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    transition: transform var(--transition-speed), box-shadow var(--transition-speed);
+    position: relative;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    text-align: center; /* Center content */
+}
+
+.movie-list-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+}
+
+.movie-list-card a {
+    text-decoration: none;
+    color: inherit;
+    display: block; /* Make the whole card clickable */
+}
+
+.movie-poster-list {
+    width: 100%;
+    height: 330px; /* Standardized height */
+    object-fit: cover;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.movie-list-card h3 {
+    margin: 15px 10px 5px 10px; /* Adjusted margins */
+    font-size: 1.2rem;
+    color: var(--text-color);
+    white-space: nowrap; /* Prevent title wrapping */
+    overflow: hidden;
+    text-overflow: ellipsis; /* Add ellipsis if too long */
+}
+
+.movie-list-card p {
+    margin: 0 10px 15px 10px; /* Adjusted margins */
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+/* Footer */
+.main-footer {
+    text-align: center;
+    padding: 1.5rem;
+    background-color: var(--background-light);
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.9rem;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
+    margin-top: 3rem;
+}
+
+/* Responsive adjustments for the movie list */
+@media (max-width: 768px) {
+    .movie-list-grid {
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: 15px;
+    }
+
+    .movie-poster-list {
+        height: 240px;
+    }
+
+    .movie-list-card h3 {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .movie-list-grid {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 10px;
+    }
+
+    .movie-poster-list {
+        height: 210px;
+    }
+
+    .main-header .main-nav {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .main-nav .nav-links, .main-nav .header-right {
+        margin-top: 10px;
+        width: 100%;
+        justify-content: center;
+    }
+
+    .tmdb-search-form {
+        margin-left: 0;
+        width: 100%;
+    }
+
+    .tmdb-search-form input[type="text"] {
+        width: 100%;
     }
 }
