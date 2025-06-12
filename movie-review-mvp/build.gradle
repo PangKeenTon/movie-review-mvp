@@ -2,6 +2,10 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.5.0' // Sử dụng phiên bản Spring Boot bạn đang dùng
 	id 'io.spring.dependency-management' version '1.1.7' // Sử dụng phiên bản plugin bạn đang dùng
+	id 'checkstyle'
+	id 'pmd'
+	id 'com.github.spotbugs' version '5.2.1'
+	id 'org.owasp.dependencycheck' version '8.4.3'
 }
 
 group = 'com.example'
@@ -42,4 +46,56 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+// Checkstyle configuration
+checkstyle {
+	toolVersion = '10.12.5'
+	configFile = file("${rootDir}/config/checkstyle/checkstyle.xml")
+	maxWarnings = 0
+}
+
+// PMD configuration
+pmd {
+	toolVersion = '6.55.0'
+	consoleOutput = true
+	ruleSets = [
+		'category/java/bestpractices.xml',
+		'category/java/errorprone.xml',
+		'category/java/codestyle.xml'
+	]
+}
+
+// SpotBugs configuration
+spotbugs {
+	toolVersion = '4.8.3'
+	effort = 'max'
+	reportLevel = 'medium'
+}
+
+spotbugsMain {
+	reports {
+		html {
+			required = true
+			outputLocation = file("$buildDir/reports/spotbugs/main.html")
+		}
+	}
+}
+
+spotbugsTest {
+	reports {
+		html {
+			required = true
+			outputLocation = file("$buildDir/reports/spotbugs/test.html")
+		}
+	}
+}
+
+// OWASP Dependency Check configuration
+dependencyCheck {
+	formats = ['HTML', 'JSON']
+	suppressionFile = file("${rootDir}/config/dependency-check/suppressions.xml")
+	analyzers {
+		assemblyEnabled = false
+	}
 }

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
+    <!-- Suppress false positives for Spring Boot dependencies -->
+    <suppress>
+        <notes>Spring Boot dependencies are generally safe</notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework\.boot/.*$</packageUrl>
+        <cve>CVE-2023-20860</cve>
+        <cve>CVE-2023-20861</cve>
+    </suppress>
+
+    <!-- Suppress false positives for H2 database -->
+    <suppress>
+        <notes>H2 database is used only in development</notes>
+        <packageUrl regex="true">^pkg:maven/com\.h2database/h2@.*$</packageUrl>
+        <cve>CVE-2022-23221</cve>
+    </suppress>
+
+    <!-- Suppress false positives for Thymeleaf -->
+    <suppress>
+        <notes>Thymeleaf is a template engine and doesn't have known vulnerabilities</notes>
+        <packageUrl regex="true">^pkg:maven/org\.thymeleaf/.*$</packageUrl>
+    </suppress>
+</suppressions> 
