@@ -31,8 +31,11 @@ public class Review {
     // Mối quan hệ Many-to-One với Movie
     // Một bộ phim có thể có nhiều đánh giá, nhưng một đánh giá chỉ cho một bộ phim.
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "movie_id", nullable = false) // Khóa ngoại trong bảng reviews
+    @JoinColumn(name = "movie_id", nullable = true) // Cho phép null nếu là review cho TV Show
     private Movie movie;
+
+    @Column(name = "tv_show_id", nullable = true)
+    private Long tvShowId; // ID của TV Show trên TMDB, nullable
 
     // Constructors
     public Review() {
@@ -85,6 +88,14 @@ public class Review {
 
     public void setMovie(Movie movie) {
         this.movie = movie;
+    }
+
+    public Long getTvShowId() {
+        return tvShowId;
+    }
+
+    public void setTvShowId(Long tvShowId) {
+        this.tvShowId = tvShowId;
     }
 
     // Phương thức tiện ích được gọi trước khi persist để đặt ngày giờ hiện tại

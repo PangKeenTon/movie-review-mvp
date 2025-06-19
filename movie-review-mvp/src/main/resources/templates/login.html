@@ -5,6 +5,146 @@
   <title>Đăng Nhập - Movie Review MVP</title>
   <link rel="stylesheet" th:href="@{/css/style.css}" />
   <link rel="stylesheet" th:href="@{/css/auth.css}" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+  <style>
+    .logo {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+    .logo img {
+      width: 60px;
+      height: 60px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+      margin-bottom: 8px;
+      animation: logo-pop 0.7s cubic-bezier(.68,-0.55,.27,1.55);
+    }
+    .logo span {
+      font-weight: bold;
+      font-size: 1.35em;
+      color: #ffb300;
+      letter-spacing: 1px;
+      text-shadow: 0 2px 8px #0002;
+      margin-bottom: 2px;
+    }
+    @keyframes logo-pop {
+      0% { transform: scale(0.7) rotate(-10deg); opacity: 0; }
+      80% { transform: scale(1.1) rotate(3deg); opacity: 1; }
+      100% { transform: scale(1) rotate(0); }
+    }
+    .auth-card {
+      min-width: 340px;
+      max-width: 370px;
+      margin: 0 auto;
+      padding: 36px 32px 28px 32px;
+      border-radius: 18px;
+      box-shadow: 0 4px 32px #0003;
+      background: #232323;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .auth-card h2 {
+      font-size: 1.45em;
+      font-weight: 700;
+      margin-bottom: 18px;
+      color: #fff;
+      text-align: center;
+    }
+    .form-group {
+      position: relative;
+      margin-bottom: 22px;
+      width: 100%;
+    }
+    .input-icon {
+      position: absolute;
+      left: 16px;
+      top: 0;
+      bottom: 0;
+      display: flex;
+      align-items: center;
+      height: 100%;
+      color: #aaa;
+      font-size: 1.15em;
+      pointer-events: none;
+      z-index: 2;
+    }
+    .auth-form input[type="text"],
+    .auth-form input[type="password"] {
+      width: 100%;
+      padding: 12px 40px 12px 44px;
+      border-radius: 8px;
+      border: 1px solid #444;
+      background: #3a3a3a;
+      color: #fff;
+      font-size: 1em;
+      outline: none;
+      transition: border 0.2s;
+      box-sizing: border-box;
+      line-height: 1.4;
+      height: 44px;
+      display: block;
+    }
+    .auth-form input:focus {
+      border: 1.5px solid #ffb300;
+      background: #444;
+    }
+    .show-hide {
+      position: absolute;
+      right: 16px;
+      top: 0;
+      bottom: 0;
+      display: flex;
+      align-items: center;
+      background: none;
+      border: none;
+      color: #aaa;
+      font-size: 1.15em;
+      cursor: pointer;
+      z-index: 2;
+      height: 100%;
+      padding: 0 4px;
+    }
+    .auth-button {
+      width: 100%;
+      padding: 12px 0;
+      border-radius: 8px;
+      background: #ffd600;
+      color: #232323;
+      font-weight: bold;
+      font-size: 1.1em;
+      border: none;
+      margin-top: 8px;
+      margin-bottom: 8px;
+      box-shadow: 0 2px 8px #0002;
+      transition: background 0.2s;
+    }
+    .auth-button:hover {
+      background: #ffb300;
+    }
+    .auth-links {
+      text-align: center;
+      margin-top: 8px;
+    }
+    @media (max-width: 600px) {
+      .auth-card { width: 98vw; min-width: unset; padding: 18px 2vw; }
+      .logo img { width: 44px; height: 44px; }
+    }
+    @keyframes fadeInUp {
+      0% { opacity: 0; transform: translateY(40px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes shake {
+      0% { transform: translateX(0); }
+      20% { transform: translateX(-8px); }
+      40% { transform: translateX(8px); }
+      60% { transform: translateX(-6px); }
+      80% { transform: translateX(6px); }
+      100% { transform: translateX(0); }
+    }
+  </style>
 </head>
 <body class="auth-container">
   <header class="auth-header">
@@ -13,45 +153,52 @@
       <a th:href="@{/register}">Đăng Ký</a>
     </nav>
   </header>
-
   <main class="auth-main">
-    <div class="auth-card">
+    <div class="auth-card" style="animation: fadeInUp 0.7s;">
+      <div class="logo">
+        <img th:src="@{/images/posters/avengers.jpg}" alt="Logo" />
+        <span>Movie Review MVP</span>
+      </div>
       <h2>Đăng Nhập</h2>
-
-      <div th:if="${param.error}" class="error-message">
-        Tên đăng nhập hoặc mật khẩu không đúng. Vui lòng thử lại.
-      </div>
-
-      <div th:if="${param.logout}" class="success-message">
-        Bạn đã đăng xuất thành công.
-      </div>
-
-      <div th:if="${successMessage}" class="success-message" th:text="${successMessage}">
-        Đăng ký thành công!
-      </div>
-
-      <form th:action="@{/perform_login}" method="post" class="auth-form">
+      <div th:if="${param.error}" class="error-message" style="animation: shake 0.3s;">Tên đăng nhập hoặc mật khẩu không đúng. Vui lòng thử lại.</div>
+      <div th:if="${param.logout}" class="success-message">Bạn đã đăng xuất thành công.</div>
+      <div th:if="${successMessage}" class="success-message" th:text="${successMessage}">Đăng ký thành công!</div>
+      <form th:action="@{/perform_login}" method="post" class="auth-form" style="width:100%;">
         <div class="form-group">
+          <span class="input-icon"><i class="fa fa-user"></i></span>
           <label for="username">Tên đăng nhập</label>
           <input type="text" id="username" name="username" required autofocus placeholder="Nhập tên đăng nhập của bạn" />
         </div>
-        
         <div class="form-group">
+          <span class="input-icon"><i class="fa fa-lock"></i></span>
           <label for="password">Mật khẩu</label>
           <input type="password" id="password" name="password" required placeholder="Nhập mật khẩu của bạn" />
+          <button type="button" class="show-hide" onclick="togglePassword()"><i class="fa fa-eye" id="eye"></i></button>
         </div>
-
         <button type="submit" class="auth-button">Đăng nhập</button>
-
         <div class="auth-links">
           <p>Chưa có tài khoản? <a th:href="@{/register}">Đăng ký ngay</a></p>
         </div>
       </form>
     </div>
   </main>
-
   <footer class="auth-footer">
     <p>&copy; 2025 - Movie Review MVP Project</p>
   </footer>
+  <script>
+    function togglePassword() {
+      const pwd = document.getElementById('password');
+      const eye = document.getElementById('eye');
+      if (pwd.type === 'password') {
+        pwd.type = 'text';
+        eye.classList.remove('fa-eye');
+        eye.classList.add('fa-eye-slash');
+      } else {
+        pwd.type = 'password';
+        eye.classList.remove('fa-eye-slash');
+        eye.classList.add('fa-eye');
+      }
+    }
+  </script>
 </body>
 </html>

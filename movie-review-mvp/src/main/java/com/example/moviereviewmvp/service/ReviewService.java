@@ -87,4 +87,20 @@ public class ReviewService { // <-- DẤU NGOẶC MỞ CỦA LỚP
                 .orElse(new ArrayList<>());
     }
 
+    public List<Review> getReviewsForTvShow(Long tvShowId) {
+        return reviewRepository.findByTvShowIdWithUserOrderByReviewDateDesc(tvShowId);
+    }
+
+    @Transactional
+    public Review addTvShowReview(Long tvShowId, String username, ReviewDto reviewDto) throws Exception {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new Exception("Không tìm thấy người dùng với username: " + username));
+        Review newReview = new Review();
+        newReview.setTvShowId(tvShowId);
+        newReview.setUser(user);
+        newReview.setRatingValue(reviewDto.getRatingValue());
+        newReview.setCommentText(reviewDto.getCommentText());
+        return reviewRepository.save(newReview);
+    }
+
 } // <-- DẤU NGOẶC ĐÓNG CUỐI CÙNG CỦA LỚP ReviewService. Đảm bảo phương thức mới nằm TRÊN dòng này.

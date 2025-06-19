@@ -6,6 +6,7 @@ import com.example.moviereviewmvp.service.UserService;
 import com.example.moviereviewmvp.service.TmdbService;
 import com.example.moviereviewmvp.dto.TmdbVideoDto;
 import com.example.moviereviewmvp.dto.TmdbMovieDto;
+import com.example.moviereviewmvp.dto.TmdbTvShowDto;
 import jakarta.validation.Valid; //
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -50,6 +51,19 @@ public class AppController {
         java.util.List<com.example.moviereviewmvp.service.TmdbService.TrailerWithMovieDto> latestTrailersTheaters = tmdbService.getLatestTrailersInTheaters(1, 8);
         model.addAttribute("latestTrailersPopular", latestTrailersPopular);
         model.addAttribute("latestTrailersTheaters", latestTrailersTheaters);
+        // What's Popular
+        java.util.List<TmdbMovieDto> popularMovies = tmdbService.getPopularMoviesForPopularSection(1);
+        java.util.List<com.example.moviereviewmvp.dto.TmdbTvShowDto> popularTvShows = tmdbService.getPopularTvShowsForPopularSection(1);
+        java.util.List<TmdbMovieDto> streamingMovies = tmdbService.getStreamingMovies(1);
+        java.util.List<com.example.moviereviewmvp.dto.TmdbTvShowDto> onTvShows = tmdbService.getOnTvShows(1);
+        java.util.List<TmdbMovieDto> forRentMovies = tmdbService.getForRentMovies(1);
+        java.util.List<TmdbMovieDto> inTheatersMovies = tmdbService.getInTheatersMovies(1);
+        model.addAttribute("popularMovies", popularMovies);
+        model.addAttribute("popularTvShows", popularTvShows);
+        model.addAttribute("streamingMovies", streamingMovies);
+        model.addAttribute("onTvShows", onTvShows);
+        model.addAttribute("forRentMovies", forRentMovies);
+        model.addAttribute("inTheatersMovies", inTheatersMovies);
         model.addAttribute("tmdbImageBaseUrl", tmdbImageBaseUrl);
         return "index";
     }

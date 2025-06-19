@@ -18,6 +18,8 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     @Query("SELECT r FROM Review r JOIN FETCH r.user WHERE r.movie.id = :movieId ORDER BY r.reviewDate DESC")
     List<Review> findByMovieIdWithUserOrderByReviewDateDesc(@Param("movieId") Long movieId);
 
+    @Query("SELECT r FROM Review r JOIN FETCH r.user WHERE r.tvShowId = :tvShowId ORDER BY r.reviewDate DESC")
+    List<Review> findByTvShowIdWithUserOrderByReviewDateDesc(@Param("tvShowId") Long tvShowId);
 
     //List<Review> findByMovieIdOrderByReviewDateDesc(Long movieId);
 

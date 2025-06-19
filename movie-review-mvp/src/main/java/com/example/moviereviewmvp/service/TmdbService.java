@@ -162,6 +162,7 @@ import com.example.moviereviewmvp.dto.TmdbMovieListResponseDto;
 import com.example.moviereviewmvp.dto.TmdbMovieDetailsDto;
 import com.example.moviereviewmvp.dto.TmdbTvShowDto;
 import com.example.moviereviewmvp.dto.TmdbTvShowListResponseDto;
+import com.example.moviereviewmvp.dto.TmdbCastMemberDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -170,9 +171,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.cache.annotation.Cacheable;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class TmdbService {
@@ -194,18 +197,22 @@ public class TmdbService {
 
     // --- Các phương thức lấy danh sách phim ---
 
+    @Cacheable(value = "popularMovies", key = "#page")
     public List<TmdbMovieDto> getPopularMovies(int page) {
         return getMoviesFromTmdbEndpoint("/movie/popular", page);
     }
 
+    @Cacheable(value = "nowPlayingMovies", key = "#page")
     public List<TmdbMovieDto> getNowPlayingMovies(int page) {
         return getMoviesFromTmdbEndpoint("/movie/now_playing", page);
     }
 
+    @Cacheable(value = "upcomingMovies", key = "#page")
     public List<TmdbMovieDto> getUpcomingMovies(int page) {
         return getMoviesFromTmdbEndpoint("/movie/upcoming", page);
     }
 
+    @Cacheable(value = "topRatedMovies", key = "#page")
     public List<TmdbMovieDto> getTopRatedMovies(int page) {
         return getMoviesFromTmdbEndpoint("/movie/top_rated", page);
     }
@@ -232,6 +239,7 @@ public class TmdbService {
 
     // --- Các phương thức lấy danh sách chương trình TV ---
 
+    @Cacheable(value = "popularTvShows", key = "#page")
     public List<TmdbTvShowDto> getPopularTvShows(int page) {
         return getTvShowsFromTmdbEndpoint("/tv/popular", page);
     }
@@ -282,32 +290,31 @@ public class TmdbService {
      * @param tmdbMovieId ID của phim trên TMDB
      * @return TmdbMovieDetailsDto chứa thông tin chi tiết, hoặc null nếu có lỗi.
      */
+    @Cacheable(value = "movieDetails", key = "#tmdbMovieId")
     public TmdbMovieDetailsDto getMovieDetails(Long tmdbMovieId) {
         String url = UriComponentsBuilder.fromHttpUrl(tmdbApiBaseUrl)
                 .pathSegment("movie", String.valueOf(tmdbMovieId))
                 .queryParam("api_key", tmdbApiKey)
                 .queryParam("language", "en-US")
-                .queryParam("append_to_response", "videos,credits") // Lấy thêm video và credits
+                .queryParam("append_to_response", "videos,credits")
                 .toUriString();
 
         logger.debug("Fetching movie details from URL: {}", url);
 
         try {
-            // Gọi trực tiếp và để Jackson tự động parse JSON sang DTO
             TmdbMovieDetailsDto response = restTemplate.getForObject(url, TmdbMovieDetailsDto.class);
             if (response != null) {
                 logger.info("Successfully fetched and parsed details for movie ID {}", tmdbMovieId);
             }
             return response;
         } catch (RestClientException e) {
-            // Lỗi này thường xảy ra khi có vấn đề về mạng hoặc API trả về lỗi (4xx, 5xx)
-            // hoặc khi Jackson không thể parse JSON (HttpMessageNotReadableException)
             logger.error("Error fetching/parsing movie details for ID {}: {}", tmdbMovieId, e.getMessage(), e);
         }
         return null;
     }
 
     // --- Lấy chi tiết chương trình TV từ TMDB ---
+    @Cacheable(value = "tvShowDetails", key = "#tvShowId")
     public TmdbTvShowDto getTvShowDetails(Long tvShowId) {
         String url = UriComponentsBuilder.fromHttpUrl(tmdbApiBaseUrl)
                 .pathSegment("tv", String.valueOf(tvShowId))
@@ -318,14 +325,20 @@ public class TmdbService {
         logger.debug("Fetching TV show details from URL: {}", url);
         try {
             TmdbTvShowDto response = restTemplate.getForObject(url, TmdbTvShowDto.class);
-            if (response != null) {
+            if (response != null && response.getCredits() != null && response.getCredits().getCast() != null) {
+                // Limit the cast list to 8 members
+                List<TmdbCastMemberDto> limitedCast = response.getCredits().getCast()
+                    .stream()
+                    .limit(8)
+                    .collect(Collectors.toList());
+                response.getCredits().setCast(limitedCast);
                 logger.info("Successfully fetched and parsed details for TV show ID {}", tvShowId);
             }
             return response;
         } catch (RestClientException e) {
-            logger.error("Error fetching/parsing TV show details for ID {}: {}", tvShowId, e.getMessage(), e);
+            logger.error("Error fetching TV show details for ID {}: {}", tvShowId, e.getMessage());
+            throw new RuntimeException("Error fetching TV show details", e);
         }
-        return null;
     }
 
     public java.util.List<com.example.moviereviewmvp.dto.TmdbVideoDto> getLatestMovieTrailers(int page, int limit) {
@@ -344,6 +357,7 @@ public class TmdbService {
         return trailers;
     }
 
+    @Cacheable(value = "trendingMoviesDay", key = "#page")
     public java.util.List<com.example.moviereviewmvp.dto.TmdbMovieDto> getTrendingMoviesDay(int page) {
         String url = UriComponentsBuilder.fromHttpUrl(tmdbApiBaseUrl)
                 .path("/trending/movie/day")
@@ -363,6 +377,7 @@ public class TmdbService {
         return java.util.Collections.emptyList();
     }
 
+    @Cacheable(value = "trendingMoviesWeek", key = "#page")
     public java.util.List<com.example.moviereviewmvp.dto.TmdbMovieDto> getTrendingMoviesWeek(int page) {
         String url = UriComponentsBuilder.fromHttpUrl(tmdbApiBaseUrl)
                 .path("/trending/movie/week")
@@ -399,6 +414,7 @@ public class TmdbService {
         public String getType() { return type; }
     }
 
+    @Cacheable(value = "latestTrailersPopular", key = "#page + '-' + #limit")
     public java.util.List<TrailerWithMovieDto> getLatestTrailersPopular(int page, int limit) {
         java.util.List<TrailerWithMovieDto> trailers = new java.util.ArrayList<>();
         java.util.List<com.example.moviereviewmvp.dto.TmdbMovieDto> popular = getPopularMovies(page);
@@ -415,6 +431,7 @@ public class TmdbService {
         return trailers;
     }
 
+    @Cacheable(value = "latestTrailersInTheaters", key = "#page + '-' + #limit")
     public java.util.List<TrailerWithMovieDto> getLatestTrailersInTheaters(int page, int limit) {
         java.util.List<TrailerWithMovieDto> trailers = new java.util.ArrayList<>();
         java.util.List<com.example.moviereviewmvp.dto.TmdbMovieDto> nowPlaying = getNowPlayingMovies(page);
@@ -429,5 +446,26 @@ public class TmdbService {
             if (trailers.size() >= limit) break;
         }
         return trailers;
+    }
+
+    public java.util.List<com.example.moviereviewmvp.dto.TmdbMovieDto> getPopularMoviesForPopularSection(int page) {
+        return getPopularMovies(page);
+    }
+    public java.util.List<com.example.moviereviewmvp.dto.TmdbTvShowDto> getPopularTvShowsForPopularSection(int page) {
+        return getTvShowsFromTmdbEndpoint("/tv/popular", page);
+    }
+    public java.util.List<com.example.moviereviewmvp.dto.TmdbMovieDto> getStreamingMovies(int page) {
+        // TMDB không có endpoint riêng cho streaming, có thể dùng popular hoặc trending hoặc bỏ qua
+        return getPopularMovies(page);
+    }
+    public java.util.List<com.example.moviereviewmvp.dto.TmdbTvShowDto> getOnTvShows(int page) {
+        return getTvShowsFromTmdbEndpoint("/tv/on_the_air", page);
+    }
+    public java.util.List<com.example.moviereviewmvp.dto.TmdbMovieDto> getForRentMovies(int page) {
+        // TMDB không có endpoint riêng cho for rent, có thể dùng popular hoặc upcoming
+        return getUpcomingMovies(page);
+    }
+    public java.util.List<com.example.moviereviewmvp.dto.TmdbMovieDto> getInTheatersMovies(int page) {
+        return getNowPlayingMovies(page);
     }
 }

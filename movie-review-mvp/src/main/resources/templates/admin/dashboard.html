@@ -5,82 +5,206 @@
     <meta charset="UTF-8">
     <title>Admin Dashboard - Movie Review MVP</title>
     <link rel="stylesheet" th:href="@{/css/style.css}" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
     <style>
-        /* Style riêng cho admin nếu cần */
+        body {
+            background: #181a1b;
+            color: #f0f0f0;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
         .admin-nav {
-            background-color: #444; /* Màu nền khác cho nav admin */
-            padding: 10px 0;
+            background: #23242a;
+            padding: 0 0 0 0;
             text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 56px;
+            box-shadow: 0 2px 8px #0002;
         }
         .admin-nav a {
-            color: #f0f0f0;
-            margin: 0 20px;
+            color: #ffd600;
+            margin: 0 32px;
             text-decoration: none;
-            font-weight: bold;
+            font-weight: 600;
+            font-size: 1.08em;
+            letter-spacing: 0.5px;
+            transition: color 0.2s;
         }
         .admin-nav a:hover {
             color: #fff;
-            text-decoration: underline;
+            text-shadow: 0 2px 8px #ffd60044;
+        }
+        .admin-nav .right {
+            margin-left: auto;
+            margin-right: 32px;
+            display: flex;
+            align-items: center;
+        }
+        .admin-nav .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            margin-right: 10px;
+            object-fit: cover;
+            border: 2px solid #ffd600;
+        }
+        .admin-nav .logout-button {
+            background: #d9534f;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 6px 16px;
+            font-weight: 600;
+            margin-left: 12px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .admin-nav .logout-button:hover {
+            background: #c9302c;
         }
         .admin-container {
-            padding: 20px;
+            max-width: 800px;
+            margin: 40px auto 0 auto;
+            padding: 0 16px 40px 16px;
+        }
+        .dashboard-title {
+            font-size: 2.1em;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #ffd600;
+            letter-spacing: 1px;
+            text-align: center;
+        }
+        .dashboard-welcome {
+            text-align: center;
+            color: #aaa;
+            margin-bottom: 32px;
+        }
+        .dashboard-cards {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 36px;
+        }
+        .stat-card {
+            background: #23242a;
+            border-radius: 14px;
+            box-shadow: 0 2px 16px #0003;
+            padding: 28px 32px 22px 32px;
+            min-width: 180px;
+            flex: 1 1 180px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: transform 0.18s, box-shadow 0.18s;
+        }
+        .stat-card:hover {
+            transform: translateY(-4px) scale(1.03);
+            box-shadow: 0 6px 24px #ffd60033;
+        }
+        .stat-icon {
+            font-size: 2.2em;
+            margin-bottom: 10px;
+        }
+        .stat-users { color: #42a5f5; }
+        .stat-movies { color: #66bb6a; }
+        .stat-reviews { color: #ffb300; }
+        .stat-label {
+            font-size: 1.08em;
+            color: #ccc;
+            margin-bottom: 2px;
+        }
+        .stat-value {
+            font-size: 2.1em;
+            font-weight: bold;
+            color: #fff;
         }
         .admin-section {
             margin-bottom: 30px;
-            padding: 15px;
-            background-color: #f9f9f9;
-            border: 1px solid #ddd;
-            border-radius: 5px;
+            padding: 18px 22px 18px 22px;
+            background: #23242a;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px #0002;
         }
         .admin-section h2 {
             margin-top: 0;
-            color: #333;
-            border-bottom: 1px solid #ccc;
+            color: #ffd600;
+            font-size: 1.18em;
+            border-bottom: 1px solid #444;
             padding-bottom: 10px;
+            margin-bottom: 18px;
+        }
+        .admin-section ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .admin-section ul li {
+            margin-bottom: 12px;
+        }
+        .admin-section ul li a {
+            color: #42a5f5;
+            font-weight: 500;
+            text-decoration: none;
+            font-size: 1.08em;
+            transition: color 0.2s;
+        }
+        .admin-section ul li a:hover {
+            color: #ffd600;
+            text-decoration: underline;
+        }
+        @media (max-width: 700px) {
+            .dashboard-cards { flex-direction: column; gap: 18px; }
+            .admin-container { padding: 0 2vw 40px 2vw; }
         }
     </style>
 </head>
 <body>
 <header>
     <nav class="admin-nav">
-        <a th:href="@{/}">Trang Chủ (User View)</a>
-        <a th:href="@{/admin/dashboard}">Admin Dashboard</a>
-        <span style="float: right; margin-right: 20px;">
-                <span style="color: #f0f0f0;">Chào Admin, <span sec:authentication="name">AdminUser</span>!</span>
-                <form th:action="@{/perform_logout}" method="post" style="display: inline; margin-left: 10px;">
-                    <button type="submit" class="logout-button" style="background-color: #d9534f;">Đăng Xuất</button>
-                </form>
-            </span>
+        <a th:href="@{/}"><i class="fa fa-home"></i> Trang Chủ (User View)</a>
+        <a th:href="@{/admin/dashboard}" style="color:#fff;"><i class="fa fa-gauge"></i> Admin Dashboard</a>
+        <span class="right">
+            <img th:src="@{/images/posters/avengers.jpg}" alt="avatar" class="avatar" />
+            <span style="color: #ffd600; font-weight: 600;">Chào Admin, <span sec:authentication="name">AdminUser</span>!</span>
+            <form th:action="@{/perform_logout}" method="post" style="display: inline; margin-left: 10px;">
+                <button type="submit" class="logout-button">Đăng Xuất</button>
+            </form>
+        </span>
     </nav>
 </header>
-
 <main class="admin-container">
-    <h1>Admin Dashboard</h1>
-    <p>Chào mừng đến với khu vực quản trị!</p>
-
+    <div class="dashboard-title">Admin Dashboard</div>
+    <div class="dashboard-welcome">Chào mừng đến với khu vực quản trị!</div>
+    <div class="dashboard-cards">
+        <div class="stat-card">
+            <div class="stat-icon stat-users"><i class="fa fa-users"></i></div>
+            <div class="stat-label">Tổng số người dùng</div>
+            <div class="stat-value">[Số liệu]</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon stat-movies"><i class="fa fa-film"></i></div>
+            <div class="stat-label">Tổng số phim (local)</div>
+            <div class="stat-value">[Số liệu]</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon stat-reviews"><i class="fa fa-star"></i></div>
+            <div class="stat-label">Tổng số đánh giá</div>
+            <div class="stat-value">[Số liệu]</div>
+        </div>
+    </div>
     <div class="admin-section">
-        <h2>Thống kê nhanh (Ví dụ)</h2>
-        <p><em>(Phần này sẽ được cập nhật với các số liệu thực tế sau)</em></p>
+        <h2><i class="fa fa-cogs"></i> Các Chức Năng Quản Trị</h2>
         <ul>
-            <li>Tổng số người dùng: [Số liệu]</li>
-            <li>Tổng số phim (local): [Số liệu]</li>
-            <li>Tổng số đánh giá: [Số liệu]</li>
+            <li><a th:href="@{/admin/users/list}"><i class="fa fa-user-cog"></i> Quản Lý Người Dùng</a></li>
+            <li><a th:href="@{/admin/reviews/list}"><i class="fa fa-star-half-alt"></i> Quản Lý Đánh Giá</a></li>
         </ul>
     </div>
-
-    <div class="admin-section">
-        <h2>Các Chức Năng Quản Trị</h2>
-        <ul>
-            <li><a th:href="@{/admin/users/list}">Quản Lý Người Dùng</a></li>
-            <li><a th:href="@{/admin/reviews/list}">Quản Lý Đánh Giá</a></li>
-        </ul>
-    </div>
-
 </main>
-
-<footer style="text-align: center; padding: 20px; background-color: #444; color: #f0f0f0; margin-top: 30px;">
+<footer style="text-align: center; padding: 20px; background-color: #23242a; color: #ffd600; margin-top: 30px;">
     <p>&copy; 2025 - Movie Review MVP Admin</p>
 </footer>
-
 </body>
 </html>

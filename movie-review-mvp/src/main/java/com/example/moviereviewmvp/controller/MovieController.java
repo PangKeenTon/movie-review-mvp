@@ -339,9 +339,50 @@ public class MovieController { // <-- NGOẶC MỞ CỦA LỚP
             return "redirect:/movies/tmdb/tv/popular";
         }
 
+        // Lấy danh sách review cho TV Show này
+        List<Review> reviews = reviewService.getReviewsForTvShow(tvShowId);
+        model.addAttribute("reviews", reviews);
+        if (!model.containsAttribute("newTvShowReview")) {
+            model.addAttribute("newTvShowReview", new ReviewDto());
+        }
+
         model.addAttribute("tvShow", tvShowDetails);
         model.addAttribute("tmdbImageBaseUrl", tmdbImageBaseUrl);
         return "movies/details_tv_tmdb";
+    }
+
+    @PostMapping("/tmdb/tv/details/{tvShowId}/reviews")
+    public String submitTvShowReview(@PathVariable Long tvShowId,
+                                     @Valid @ModelAttribute("newTvShowReview") ReviewDto reviewDto,
+                                     BindingResult bindingResult,
+                                     @AuthenticationPrincipal UserDetails currentUser,
+                                     Model model,
+                                     RedirectAttributes redirectAttributes,
+                                     HttpServletRequest request) {
+        if (currentUser == null) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Vui lòng đăng nhập để đánh giá.");
+            return "redirect:/login";
+        }
+        TmdbTvShowDto tvShowDetails = tmdbService.getTvShowDetails(tvShowId);
+        if (tvShowDetails == null) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Không thể tải thông tin chi tiết chương trình TV từ TMDB.");
+            return "redirect:/movies/tmdb/tv/popular";
+        }
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("tvShow", tvShowDetails);
+            List<Review> reviews = reviewService.getReviewsForTvShow(tvShowId);
+            model.addAttribute("reviews", reviews);
+            model.addAttribute("tmdbImageBaseUrl", tmdbImageBaseUrl);
+            return "movies/details_tv_tmdb";
+        }
+        try {
+            reviewService.addTvShowReview(tvShowId, currentUser.getUsername(), reviewDto);
+            redirectAttributes.addFlashAttribute("successMessage", "Đánh giá của bạn đã được gửi thành công!");
+        } catch (Exception e) {
+            logger.error("Error submitting review for TV show ID {}: {}", tvShowId, e.getMessage(), e);
+            redirectAttributes.addFlashAttribute("errorMessage", "Lỗi khi gửi đánh giá: " + e.getMessage());
+        }
+        return "redirect:/movies/tmdb/tv/details/" + tvShowId;
     }
 
 } // <-- NGOẶC ĐÓNG CUỐI CÙNG CỦA LỚP MovieController. Đảm bảo tất cả phương thức nằm trên dòng này.

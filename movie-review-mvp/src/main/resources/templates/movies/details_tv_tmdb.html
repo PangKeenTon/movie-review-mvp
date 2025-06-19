@@ -13,43 +13,91 @@
         <div>
             <img th:if="${tvShow.posterPath != null and !tvShow.posterPath.isEmpty()}"
                  th:src="${tmdbImageBaseUrl + 'w342' + tvShow.posterPath}"
-                 th:alt="${tvShow.name}" style="width: 220px; border-radius: 8px;"/>
-            <img th:unless="${tvShow.posterPath != null and !tvShow.posterPath.isEmpty()}"
-                 th:src="@{/images/default-poster.png}" alt="Default Poster" style="width: 220px; border-radius: 8px;"/>
+                 th:alt="${tvShow.name}"
+                 style="border-radius: 10px; max-width: 300px;">
         </div>
         <div style="flex: 1;">
-            <h1 th:text="${tvShow.name}">Tên Chương Trình TV</h1>
-            <p th:if="${tvShow.firstAirDate != null and !tvShow.firstAirDate.isEmpty()}"
-               th:text="'Ngày phát sóng đầu tiên: ' + ${tvShow.firstAirDate}">Ngày phát sóng đầu tiên</p>
-            <p th:if="${tvShow.voteAverage != null}"
-               th:text="'Đánh giá TMDB: ' + ${#numbers.formatDecimal(tvShow.voteAverage, 1, 1)} + '/10'">Đánh giá</p>
-            <div th:if="${tvShow.genres != null and !tvShow.genres.isEmpty()}" style="margin: 10px 0;">
-                <span style="font-weight: bold;">Thể loại:</span>
-                <span th:each="genre, iter : ${tvShow.genres}" th:text="${genre.name} + (iter.last ? '' : ', ')"></span>
+            <h1 th:text="${tvShow.name}" style="margin: 0 0 10px 0;"></h1>
+            <div style="margin-bottom: 20px;">
+                <span th:text="${tvShow.firstAirDate}" style="color: #aaa;"></span>
+                <span th:if="${tvShow.genres != null and !tvShow.genres.isEmpty()}" style="margin-left: 15px;">
+                    <span th:each="genre, iterStat : ${tvShow.genres}">
+                        <span th:text="${genre.name}"></span>
+                        <span th:if="${!iterStat.last}">, </span>
+                    </span>
+                </span>
             </div>
-            <div style="margin-top: 20px;">
-                <h3>Mô tả</h3>
-                <p th:text="${tvShow.overview}">Mô tả chương trình TV...</p>
-            </div>
-            <div th:if="${tvShow.credits != null && tvShow.credits.cast != null && !tvShow.credits.cast.isEmpty()}" style="margin-top: 30px;">
-                <h3>Diễn viên nổi bật</h3>
-                <div style="display: flex; flex-wrap: wrap; gap: 15px;">
-                    <div th:each="cast : ${#lists.take(tvShow.credits.cast, 8)}" style="text-align: center; width: 90px;">
-                        <img th:if="${cast.profilePath != null}" th:src="${tmdbImageBaseUrl + 'w185' + cast.profilePath}" th:alt="${cast.name}" style="width: 80px; border-radius: 6px;"/>
-                        <img th:unless="${cast.profilePath != null}" th:src="@{/images/default-poster.png}" alt="No Image" style="width: 80px; border-radius: 6px;"/>
-                        <div th:text="${cast.name}" style="font-size: 0.95em; margin-top: 5px;"></div>
-                        <div th:if="${cast.character != null}" th:text="${cast.character}" style="font-size: 0.85em; color: #aaa;"></div>
+            <p th:text="${tvShow.overview}" style="line-height: 1.6;"></p>
+            <div th:if="${tvShow.credits != null and tvShow.credits.cast != null and !tvShow.credits.cast.isEmpty()}" style="margin-top: 30px;">
+                <h3>Diễn viên chính</h3>
+                <div style="display: flex; gap: 15px; overflow-x: auto; padding: 10px 0;">
+                    <div th:each="cast : ${tvShow.credits.cast}" style="text-align: center; width: 90px;">
+                        <img th:if="${cast.profilePath != null}"
+                             th:src="${tmdbImageBaseUrl + 'w185' + cast.profilePath}"
+                             th:alt="${cast.name}"
+                             style="width: 90px; height: 135px; border-radius: 5px; margin-bottom: 5px;">
+                        <img th:if="${cast.profilePath == null}"
+                             src="/images/no-profile.jpg"
+                             th:alt="${cast.name}"
+                             style="width: 90px; height: 135px; border-radius: 5px; margin-bottom: 5px;">
+                        <div style="font-size: 0.9em;" th:text="${cast.name}"></div>
+                        <div style="font-size: 0.8em; color: #aaa;" th:text="${cast.character}"></div>
                     </div>
                 </div>
             </div>
-            <div th:if="${tvShow.videos != null && tvShow.videos.results != null && !tvShow.videos.results.isEmpty()}" style="margin-top: 30px;">
+            <div th:if="${tvShow.videos != null and tvShow.videos.results != null and !tvShow.videos.results.isEmpty()}" style="margin-top: 30px;">
                 <h3>Trailer</h3>
-                <div th:each="video : ${tvShow.videos.results}">
-                    <iframe th:if="${video.site == 'YouTube'}" th:src="${'https://www.youtube.com/embed/' + video.key}" width="420" height="236" frameborder="0" allowfullscreen></iframe>
+                <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; border-radius: 10px;">
+                    <iframe th:src="'https://www.youtube.com/embed/' + ${tvShow.videos.results[0].key}"
+                            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;"
+                            allowfullscreen>
+                    </iframe>
                 </div>
             </div>
         </div>
     </div>
+    <!-- REVIEW SECTION FOR TV SHOW -->
+    <section style="margin-top: 40px;">
+        <h2 style="font-size: 1.3em; margin-bottom: 15px;">Đánh giá & Bình luận</h2>
+        <div th:if="${#lists.isEmpty(reviews)}" style="color: #aaa;">Chưa có đánh giá nào cho chương trình TV này.</div>
+        <div th:each="review : ${reviews}" class="review-card" style="background: #232323; border-radius: 10px; margin-bottom: 18px; padding: 18px 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="font-weight: bold; color: #ffb300; font-size: 1.1em;">
+                    <span th:text="${review.user.username}"></span>
+                </div>
+                <div style="color: #ff5252; font-size: 1.1em; margin-left: 10px;">
+                    <span th:each="star : ${#numbers.sequence(1, review.ratingValue)}">★</span>
+                    <span th:each="star : ${#numbers.sequence(review.ratingValue+1, 5)}" style="color: #444;">★</span>
+                </div>
+                <div style="color: #aaa; font-size: 0.95em; margin-left: auto;">
+                    <span th:text="${#temporals.format(review.reviewDate, 'dd/MM/yyyy HH:mm')}"></span>
+                </div>
+            </div>
+            <div style="margin-top: 8px; font-size: 1.05em; color: #eee;" th:text="${review.commentText}"></div>
+        </div>
+        <!-- FORM GỬI ĐÁNH GIÁ TV SHOW -->
+        <div th:if="${#authorization.expression('isAuthenticated()')}">
+            <form th:action="@{'/movies/tmdb/tv/details/' + ${tvShow.id} + '/reviews'}" th:object="${newTvShowReview}" method="post" style="margin-top: 25px; background: #232323; border-radius: 10px; padding: 20px;">
+                <div style="margin-bottom: 12px;">
+                    <label for="ratingValue">Điểm đánh giá:</label>
+                    <select id="ratingValue" th:field="*{ratingValue}" required style="margin-left: 10px;">
+                        <option value="" disabled selected>Chọn điểm</option>
+                        <option th:each="i : ${#numbers.sequence(1,5)}" th:value="${i}" th:text="${i} + ' sao'"></option>
+                    </select>
+                    <div th:if="${#fields.hasErrors('ratingValue')}" th:errors="*{ratingValue}" style="color: #ff5252; font-size: 0.95em;"></div>
+                </div>
+                <div style="margin-bottom: 12px;">
+                    <label for="commentText">Bình luận:</label>
+                    <textarea id="commentText" th:field="*{commentText}" rows="3" required style="width: 100%; border-radius: 6px; padding: 8px;"></textarea>
+                    <div th:if="${#fields.hasErrors('commentText')}" th:errors="*{commentText}" style="color: #ff5252; font-size: 0.95em;"></div>
+                </div>
+                <button type="submit" style="background: #ff5252; color: #fff; border: none; border-radius: 6px; padding: 8px 18px; font-size: 1em; cursor: pointer;">Gửi đánh giá</button>
+            </form>
+        </div>
+        <div th:unless="${#authorization.expression('isAuthenticated()')}" style="margin-top: 20px; color: #aaa;">
+            <a th:href="@{/login}" style="color: #ff5252;">Đăng nhập</a> để gửi đánh giá cho chương trình TV này.
+        </div>
+    </section>
 </main>
 <footer th:replace="~{fragments/footer :: footer}"></footer>
 </body>
