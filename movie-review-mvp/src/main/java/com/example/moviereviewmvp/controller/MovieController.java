@@ -317,4 +317,31 @@ public class MovieController { // <-- NGOẶC MỞ CỦA LỚP
         return "movies/popular_tv_tmdb";
     }
 
+    // --- CHI TIẾT CHƯƠNG TRÌNH TV TMDB ---
+    @GetMapping("/tmdb/tv/details/{tvShowId}")
+    public String tmdbTvShowDetailsPage(@PathVariable Long tvShowId,
+                                         Model model,
+                                         RedirectAttributes redirectAttributes,
+                                         HttpServletRequest request) {
+        String requestURI = request.getRequestURI();
+        if (request.getQueryString() != null) {
+            requestURI += "?" + request.getQueryString();
+        }
+        model.addAttribute("currentUri", request.getRequestURI());
+        model.addAttribute("currentUrl", requestURI);
+
+        logger.info("Fetching details for TMDB TV show ID: {}", tvShowId);
+        TmdbTvShowDto tvShowDetails = tmdbService.getTvShowDetails(tvShowId);
+
+        if (tvShowDetails == null) {
+            logger.warn("Could not fetch TV show details from TMDB for ID: {}", tvShowId);
+            redirectAttributes.addFlashAttribute("errorMessage", "Không thể tải thông tin chi tiết chương trình TV từ TMDB.");
+            return "redirect:/movies/tmdb/tv/popular";
+        }
+
+        model.addAttribute("tvShow", tvShowDetails);
+        model.addAttribute("tmdbImageBaseUrl", tmdbImageBaseUrl);
+        return "movies/details_tv_tmdb";
+    }
+
 } // <-- NGOẶC ĐÓNG CUỐI CÙNG CỦA LỚP MovieController. Đảm bảo tất cả phương thức nằm trên dòng này.

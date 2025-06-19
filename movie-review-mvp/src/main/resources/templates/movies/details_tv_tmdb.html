@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${tvShow.name} + ' - Chi tiết Chương Trình TV'">Chi tiết Chương Trình TV</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+</head>
+<body>
+<header th:replace="~{fragments/header :: header}"></header>
+<main style="max-width: 900px; margin: 30px auto; background: #181818; border-radius: 10px; padding: 30px; color: #fff;">
+    <a th:href="@{/movies/tmdb/tv/popular}" style="color: #ff5252;">&laquo; Quay lại danh sách chương trình TV</a>
+    <div style="display: flex; gap: 30px; margin-top: 20px;">
+        <div>
+            <img th:if="${tvShow.posterPath != null and !tvShow.posterPath.isEmpty()}"
+                 th:src="${tmdbImageBaseUrl + 'w342' + tvShow.posterPath}"
+                 th:alt="${tvShow.name}" style="width: 220px; border-radius: 8px;"/>
+            <img th:unless="${tvShow.posterPath != null and !tvShow.posterPath.isEmpty()}"
+                 th:src="@{/images/default-poster.png}" alt="Default Poster" style="width: 220px; border-radius: 8px;"/>
+        </div>
+        <div style="flex: 1;">
+            <h1 th:text="${tvShow.name}">Tên Chương Trình TV</h1>
+            <p th:if="${tvShow.firstAirDate != null and !tvShow.firstAirDate.isEmpty()}"
+               th:text="'Ngày phát sóng đầu tiên: ' + ${tvShow.firstAirDate}">Ngày phát sóng đầu tiên</p>
+            <p th:if="${tvShow.voteAverage != null}"
+               th:text="'Đánh giá TMDB: ' + ${#numbers.formatDecimal(tvShow.voteAverage, 1, 1)} + '/10'">Đánh giá</p>
+            <div th:if="${tvShow.genres != null and !tvShow.genres.isEmpty()}" style="margin: 10px 0;">
+                <span style="font-weight: bold;">Thể loại:</span>
+                <span th:each="genre, iter : ${tvShow.genres}" th:text="${genre.name} + (iter.last ? '' : ', ')"></span>
+            </div>
+            <div style="margin-top: 20px;">
+                <h3>Mô tả</h3>
+                <p th:text="${tvShow.overview}">Mô tả chương trình TV...</p>
+            </div>
+            <div th:if="${tvShow.credits != null && tvShow.credits.cast != null && !tvShow.credits.cast.isEmpty()}" style="margin-top: 30px;">
+                <h3>Diễn viên nổi bật</h3>
+                <div style="display: flex; flex-wrap: wrap; gap: 15px;">
+                    <div th:each="cast : ${#lists.take(tvShow.credits.cast, 8)}" style="text-align: center; width: 90px;">
+                        <img th:if="${cast.profilePath != null}" th:src="${tmdbImageBaseUrl + 'w185' + cast.profilePath}" th:alt="${cast.name}" style="width: 80px; border-radius: 6px;"/>
+                        <img th:unless="${cast.profilePath != null}" th:src="@{/images/default-poster.png}" alt="No Image" style="width: 80px; border-radius: 6px;"/>
+                        <div th:text="${cast.name}" style="font-size: 0.95em; margin-top: 5px;"></div>
+                        <div th:if="${cast.character != null}" th:text="${cast.character}" style="font-size: 0.85em; color: #aaa;"></div>
+                    </div>
+                </div>
+            </div>
+            <div th:if="${tvShow.videos != null && tvShow.videos.results != null && !tvShow.videos.results.isEmpty()}" style="margin-top: 30px;">
+                <h3>Trailer</h3>
+                <div th:each="video : ${tvShow.videos.results}">
+                    <iframe th:if="${video.site == 'YouTube'}" th:src="${'https://www.youtube.com/embed/' + video.key}" width="420" height="236" frameborder="0" allowfullscreen></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+</html> 

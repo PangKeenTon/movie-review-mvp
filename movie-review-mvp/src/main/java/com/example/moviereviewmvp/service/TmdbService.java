@@ -306,4 +306,25 @@ public class TmdbService {
         }
         return null;
     }
+
+    // --- Lấy chi tiết chương trình TV từ TMDB ---
+    public TmdbTvShowDto getTvShowDetails(Long tvShowId) {
+        String url = UriComponentsBuilder.fromHttpUrl(tmdbApiBaseUrl)
+                .pathSegment("tv", String.valueOf(tvShowId))
+                .queryParam("api_key", tmdbApiKey)
+                .queryParam("language", "en-US")
+                .queryParam("append_to_response", "credits,videos")
+                .toUriString();
+        logger.debug("Fetching TV show details from URL: {}", url);
+        try {
+            TmdbTvShowDto response = restTemplate.getForObject(url, TmdbTvShowDto.class);
+            if (response != null) {
+                logger.info("Successfully fetched and parsed details for TV show ID {}", tvShowId);
+            }
+            return response;
+        } catch (RestClientException e) {
+            logger.error("Error fetching/parsing TV show details for ID {}: {}", tvShowId, e.getMessage(), e);
+        }
+        return null;
+    }
 }
