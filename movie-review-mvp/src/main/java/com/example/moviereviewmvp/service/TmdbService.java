@@ -327,4 +327,107 @@ public class TmdbService {
         }
         return null;
     }
+
+    public java.util.List<com.example.moviereviewmvp.dto.TmdbVideoDto> getLatestMovieTrailers(int page, int limit) {
+        java.util.List<com.example.moviereviewmvp.dto.TmdbVideoDto> trailers = new java.util.ArrayList<>();
+        java.util.List<com.example.moviereviewmvp.dto.TmdbMovieDto> nowPlaying = getNowPlayingMovies(page);
+        for (com.example.moviereviewmvp.dto.TmdbMovieDto movie : nowPlaying) {
+            com.example.moviereviewmvp.dto.TmdbMovieDetailsDto details = getMovieDetails(movie.getId());
+            if (details != null && details.getVideos() != null && details.getVideos().getResults() != null) {
+                details.getVideos().getResults().stream()
+                        .filter(v -> "YouTube".equalsIgnoreCase(v.getSite()) && "Trailer".equalsIgnoreCase(v.getType()))
+                        .findFirst()
+                        .ifPresent(trailers::add);
+            }
+            if (trailers.size() >= limit) break;
+        }
+        return trailers;
+    }
+
+    public java.util.List<com.example.moviereviewmvp.dto.TmdbMovieDto> getTrendingMoviesDay(int page) {
+        String url = UriComponentsBuilder.fromHttpUrl(tmdbApiBaseUrl)
+                .path("/trending/movie/day")
+                .queryParam("api_key", tmdbApiKey)
+                .queryParam("language", "en-US")
+                .queryParam("page", page)
+                .toUriString();
+        logger.debug("Fetching trending movies (day) from TMDB URL: {}", url);
+        try {
+            com.example.moviereviewmvp.dto.TmdbMovieListResponseDto response = restTemplate.getForObject(url, com.example.moviereviewmvp.dto.TmdbMovieListResponseDto.class);
+            if (response != null && response.getResults() != null) {
+                return response.getResults();
+            }
+        } catch (RestClientException e) {
+            logger.error("Error calling TMDB API for trending movies (day): {}", e.getMessage());
+        }
+        return java.util.Collections.emptyList();
+    }
+
+    public java.util.List<com.example.moviereviewmvp.dto.TmdbMovieDto> getTrendingMoviesWeek(int page) {
+        String url = UriComponentsBuilder.fromHttpUrl(tmdbApiBaseUrl)
+                .path("/trending/movie/week")
+                .queryParam("api_key", tmdbApiKey)
+                .queryParam("language", "en-US")
+                .queryParam("page", page)
+                .toUriString();
+        logger.debug("Fetching trending movies (week) from TMDB URL: {}", url);
+        try {
+            com.example.moviereviewmvp.dto.TmdbMovieListResponseDto response = restTemplate.getForObject(url, com.example.moviereviewmvp.dto.TmdbMovieListResponseDto.class);
+            if (response != null && response.getResults() != null) {
+                return response.getResults();
+            }
+        } catch (RestClientException e) {
+            logger.error("Error calling TMDB API for trending movies (week): {}", e.getMessage());
+        }
+        return java.util.Collections.emptyList();
+    }
+
+    public static class TrailerWithMovieDto {
+        private String title;
+        private String posterPath;
+        private String key;
+        private String type;
+        public TrailerWithMovieDto(String title, String posterPath, String key, String type) {
+            this.title = title;
+            this.posterPath = posterPath;
+            this.key = key;
+            this.type = type;
+        }
+        public String getTitle() { return title; }
+        public String getPosterPath() { return posterPath; }
+        public String getKey() { return key; }
+        public String getType() { return type; }
+    }
+
+    public java.util.List<TrailerWithMovieDto> getLatestTrailersPopular(int page, int limit) {
+        java.util.List<TrailerWithMovieDto> trailers = new java.util.ArrayList<>();
+        java.util.List<com.example.moviereviewmvp.dto.TmdbMovieDto> popular = getPopularMovies(page);
+        for (com.example.moviereviewmvp.dto.TmdbMovieDto movie : popular) {
+            com.example.moviereviewmvp.dto.TmdbMovieDetailsDto details = getMovieDetails(movie.getId());
+            if (details != null && details.getVideos() != null && details.getVideos().getResults() != null) {
+                details.getVideos().getResults().stream()
+                        .filter(v -> "YouTube".equalsIgnoreCase(v.getSite()) && "Trailer".equalsIgnoreCase(v.getType()))
+                        .findFirst()
+                        .ifPresent(v -> trailers.add(new TrailerWithMovieDto(details.getTitle(), details.getPosterPath(), v.getKey(), v.getType())));
+            }
+            if (trailers.size() >= limit) break;
+        }
+        return trailers;
+    }
+
+    public java.util.List<TrailerWithMovieDto> getLatestTrailersInTheaters(int page, int limit) {
+        java.util.List<TrailerWithMovieDto> trailers = new java.util.ArrayList<>();
+        java.util.List<com.example.moviereviewmvp.dto.TmdbMovieDto> nowPlaying = getNowPlayingMovies(page);
+        for (com.example.moviereviewmvp.dto.TmdbMovieDto movie : nowPlaying) {
+            com.example.moviereviewmvp.dto.TmdbMovieDetailsDto details = getMovieDetails(movie.getId());
+            if (details != null && details.getVideos() != null && details.getVideos().getResults() != null) {
+                details.getVideos().getResults().stream()
+                        .filter(v -> "YouTube".equalsIgnoreCase(v.getSite()) && "Trailer".equalsIgnoreCase(v.getType()))
+                        .findFirst()
+                        .ifPresent(v -> trailers.add(new TrailerWithMovieDto(details.getTitle(), details.getPosterPath(), v.getKey(), v.getType())));
+            }
+            if (trailers.size() >= limit) break;
+        }
+        return trailers;
+    }
 }

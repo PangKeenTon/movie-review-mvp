@@ -14,12 +14,11 @@
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-family: 'Inter', 'Roboto', Arial, sans-serif;
+    background: #181a20;
+    color: #f5f6fa;
     margin: 0;
     padding: 0;
-    background-color: var(--background-dark);
-    color: var(--text-color);
-    line-height: 1.6;
 }
 
 /* Header & Navigation */
@@ -814,4 +813,280 @@ footer {
     .tmdb-search-form input[type="text"] {
         width: 100%;
     }
+}
+
+/* --- Latest Trailers Section --- */
+.latest-trailers {
+    margin: 48px auto 32px auto;
+    max-width: 1280px;
+    padding: 0 24px;
+}
+
+.latest-trailers h2 {
+    text-align: center;
+    font-size: 2.2em;
+    font-weight: 700;
+    margin-bottom: 32px;
+    letter-spacing: 1px;
+    color: #fff;
+    text-shadow: 0 2px 8px #0008;
+}
+
+.trailer-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 36px;
+    justify-content: center;
+}
+
+.trailer-card {
+    background: #23272f;
+    border-radius: 18px;
+    box-shadow: 0 8px 32px #000a;
+    width: 270px;
+    transition: transform 0.22s, box-shadow 0.22s;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.trailer-card:hover {
+    transform: translateY(-10px) scale(1.04);
+    box-shadow: 0 16px 48px #000c;
+}
+
+.trailer-thumb {
+    position: relative;
+    width: 100%;
+    height: 152px;
+    overflow: hidden;
+    background: #111;
+}
+
+.trailer-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-bottom: 1px solid #333;
+    filter: brightness(0.92);
+    transition: filter 0.2s;
+}
+
+.trailer-card:hover .trailer-thumb img {
+    filter: brightness(1.05);
+}
+
+.play-btn {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    background: linear-gradient(135deg, #ff5252 60%, #ffb347 100%);
+    border: none;
+    border-radius: 50%;
+    width: 56px; height: 56px;
+    color: #fff;
+    font-size: 2em;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 12px #0008;
+    transition: background 0.2s, box-shadow 0.2s;
+    z-index: 2;
+    outline: none;
+}
+
+.play-btn:hover {
+    background: linear-gradient(135deg, #ffb347 40%, #ff5252 100%);
+    box-shadow: 0 4px 24px #ff525288;
+}
+
+.trailer-info {
+    padding: 18px 16px 16px 16px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+
+.trailer-title {
+    font-size: 1.15em;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-shadow: 0 1px 4px #0008;
+}
+
+.trailer-type {
+    font-size: 0.98em;
+    color: #ffb347;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
+
+#trailerModal {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(0,0,0,0.92);
+    z-index: 1000;
+    align-items: center; justify-content: center;
+    animation: fadeIn 0.3s;
+}
+
+#trailerModal[style*="display: flex"] {
+    display: flex !important;
+}
+
+#trailerModal iframe {
+    border-radius: 16px;
+    box-shadow: 0 8px 48px #000c;
+}
+
+#trailerModal button {
+    font-size: 2.2em;
+    color: #fff;
+    background: none;
+    border: none;
+    cursor: pointer;
+    top: -48px;
+    right: 0;
+    position: absolute;
+    transition: color 0.2s;
+}
+
+#trailerModal button:hover {
+    color: #ff5252;
+}
+
+@media (max-width: 900px) {
+    .trailer-card { width: 46vw; min-width: 180px; }
+    .trailer-thumb { height: 120px; }
+}
+
+@media (max-width: 600px) {
+    .latest-trailers { padding: 0 4px; }
+    .trailer-card { width: 98vw; min-width: 0; }
+    .trailer-thumb { height: 38vw; min-height: 100px; }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.trending-section {
+    margin: 48px auto 32px auto;
+    max-width: 1280px;
+    padding: 0 24px;
+}
+.trending-section h2 {
+    text-align: center;
+    font-size: 2.2em;
+    font-weight: 700;
+    margin-bottom: 32px;
+    letter-spacing: 1px;
+    color: #fff;
+    text-shadow: 0 2px 8px #0008;
+}
+.trending-scroll {
+    display: flex;
+    gap: 24px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    scrollbar-width: thin;
+    scrollbar-color: #444 #23272f;
+}
+.trending-scroll::-webkit-scrollbar, .trailer-scroll::-webkit-scrollbar {
+    height: 8px;
+    background: transparent;
+}
+.trending-scroll::-webkit-scrollbar-thumb, .trailer-scroll::-webkit-scrollbar-thumb {
+    background: #444a;
+    border-radius: 6px;
+    transition: background 0.2s;
+}
+.trending-scroll:hover::-webkit-scrollbar-thumb, .trailer-scroll:hover::-webkit-scrollbar-thumb {
+    background: #888c;
+}
+.trending-scroll::-webkit-scrollbar-track, .trailer-scroll::-webkit-scrollbar-track {
+    background: transparent;
+}
+.trending-card {
+    min-width: 170px;
+    max-width: 170px;
+    background: #23272f;
+    border-radius: 14px;
+    box-shadow: 0 4px 16px #0006;
+    overflow: hidden;
+    flex-shrink: 0;
+    text-align: center;
+    transition: transform 0.18s, box-shadow 0.18s;
+}
+.trending-card:hover {
+    transform: translateY(-8px) scale(1.04);
+    box-shadow: 0 8px 32px #000a;
+}
+.trending-card img {
+    width: 100%;
+    border-radius: 14px 14px 0 0;
+    object-fit: cover;
+    height: 240px;
+    background: #111;
+}
+.trend-title {
+    font-weight: 600;
+    color: #fff;
+    margin: 8px 0 2px 0;
+    font-size: 1em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.trend-date {
+    color: #ffb347;
+    font-size: 0.95em;
+    margin-bottom: 8px;
+}
+.tab-bar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 18px;
+    justify-content: flex-start;
+}
+.tab-btn {
+    background: #23272f;
+    color: #fff;
+    border: none;
+    border-radius: 20px;
+    padding: 7px 22px;
+    font-size: 1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+.tab-btn.active, .tab-btn:hover {
+    background: #fff;
+    color: #23272f;
+}
+.trailer-list, .trending-list {
+    width: 100%;
+}
+.trailer-scroll {
+    display: flex;
+    gap: 36px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    scrollbar-width: thin;
+}
+@media (max-width: 900px) {
+    .trending-card { min-width: 120px; max-width: 120px; }
+    .trending-card img { height: 160px; }
+}
+@media (max-width: 600px) {
+    .trending-section { padding: 0 4px; }
+    .trending-card { min-width: 90vw; max-width: 90vw; }
+    .trending-card img { height: 38vw; min-height: 100px; }
 }

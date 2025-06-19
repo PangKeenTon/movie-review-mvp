@@ -17,12 +17,110 @@
             <p>Discover, rate, and review your favorite movies</p>
         </section>
 
-        <section class="featured-movies">
-            <h2>Featured Movies</h2>
-            <div class="movie-grid">
-                <!-- Featured movies will be loaded here -->
-                <div class="loading"></div>
+        <section class="trending-section">
+            <h2>Trending</h2>
+            <div class="tab-bar">
+                <button class="tab-btn active" onclick="showTrending('day')">Today</button>
+                <button class="tab-btn" onclick="showTrending('week')">This Week</button>
             </div>
+            <div class="trending-list" id="trending-day" style="display:block;">
+                <div class="trending-scroll">
+                    <div th:each="item : ${trendingDay}" class="trending-card">
+                        <a th:href="@{'/movies/tmdb/details/' + ${item.id}}" style="text-decoration:none; color:inherit;">
+                            <img th:src="${tmdbImageBaseUrl + 'w342' + item.posterPath}" th:alt="${item.title}" />
+                            <div class="trend-title" th:text="${item.title}"></div>
+                            <div class="trend-date" th:text="${item.releaseDate}"></div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="trending-list" id="trending-week" style="display:none;">
+                <div class="trending-scroll">
+                    <div th:each="item : ${trendingWeek}" class="trending-card">
+                        <a th:href="@{'/movies/tmdb/details/' + ${item.id}}" style="text-decoration:none; color:inherit;">
+                            <img th:src="${tmdbImageBaseUrl + 'w342' + item.posterPath}" th:alt="${item.title}" />
+                            <div class="trend-title" th:text="${item.title}"></div>
+                            <div class="trend-date" th:text="${item.releaseDate}"></div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <script>
+        function showTrending(type) {
+          document.getElementById('trending-day').style.display = (type === 'day') ? 'block' : 'none';
+          document.getElementById('trending-week').style.display = (type === 'week') ? 'block' : 'none';
+          document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+          document.querySelector('.tab-btn' + (type === 'day' ? ':first-child' : ':last-child')).classList.add('active');
+        }
+        </script>
+
+        <section class="latest-trailers">
+            <h2>Latest Trailers</h2>
+            <div class="tab-bar">
+                <button class="tab-btn active" onclick="showTrailerTab('popular')">Popular</button>
+                <button class="tab-btn" onclick="showTrailerTab('theaters')">In Theaters</button>
+            </div>
+            <div class="trailer-list" id="trailer-popular" style="display:block;">
+                <div class="trailer-scroll">
+                    <div th:each="trailer : ${latestTrailersPopular}" class="trailer-card">
+                        <div class="trailer-thumb" style="position:relative;">
+                            <img th:src="${tmdbImageBaseUrl + 'w342' + trailer.posterPath}" th:alt="${trailer.title}" style="width:100%;border-radius:8px;">
+                            <button type="button" class="play-btn" th:attr="data-key=${trailer.key}" onclick="openTrailerModal(this)">
+                                <i class="fas fa-play"></i>
+                            </button>
+                        </div>
+                        <div class="trailer-info">
+                            <div th:text="${trailer.title}" class="trailer-title"></div>
+                            <div th:text="${trailer.type}" class="trailer-type"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="trailer-list" id="trailer-theaters" style="display:none;">
+                <div class="trailer-scroll">
+                    <div th:each="trailer : ${latestTrailersTheaters}" class="trailer-card">
+                        <div class="trailer-thumb" style="position:relative;">
+                            <img th:src="${tmdbImageBaseUrl + 'w342' + trailer.posterPath}" th:alt="${trailer.title}" style="width:100%;border-radius:8px;">
+                            <button type="button" class="play-btn" th:attr="data-key=${trailer.key}" onclick="openTrailerModal(this)">
+                                <i class="fas fa-play"></i>
+                            </button>
+                        </div>
+                        <div class="trailer-info">
+                            <div th:text="${trailer.title}" class="trailer-title"></div>
+                            <div th:text="${trailer.type}" class="trailer-type"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="trailerModal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:#000a; z-index:1000; align-items:center; justify-content:center;">
+                <div style="position:relative; width:60vw; max-width:800px;">
+                    <button onclick="closeTrailerModal()" style="position:absolute;top:-40px;right:0;font-size:2em;color:#fff;background:none;border:none;">×</button>
+                    <iframe id="trailerFrame" width="100%" height="400" frameborder="0" allowfullscreen></iframe>
+                </div>
+            </div>
+            <script>
+                function openTrailerModal(btn) {
+                    var key = btn.getAttribute('data-key');
+                    var modal = document.getElementById('trailerModal');
+                    var frame = document.getElementById('trailerFrame');
+                    frame.src = 'https://www.youtube.com/embed/' + key + '?autoplay=1';
+                    modal.style.display = 'flex';
+                }
+                function closeTrailerModal() {
+                    var modal = document.getElementById('trailerModal');
+                    var frame = document.getElementById('trailerFrame');
+                    modal.style.display = 'none';
+                    frame.src = '';
+                }
+                function showTrailerTab(tab) {
+                  document.getElementById('trailer-popular').style.display = (tab === 'popular') ? 'block' : 'none';
+                  document.getElementById('trailer-theaters').style.display = (tab === 'theaters') ? 'block' : 'none';
+                  var btns = document.querySelectorAll('.latest-trailers .tab-btn');
+                  btns.forEach(btn => btn.classList.remove('active'));
+                  btns[tab === 'popular' ? 0 : 1].classList.add('active');
+                }
+            </script>
         </section>
 
         <section class="user-section" sec:authorize="isAuthenticated()">

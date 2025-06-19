@@ -3,8 +3,12 @@ package com.example.moviereviewmvp.controller;
 
 import com.example.moviereviewmvp.dto.UserRegistrationDto;
 import com.example.moviereviewmvp.service.UserService;
+import com.example.moviereviewmvp.service.TmdbService;
+import com.example.moviereviewmvp.dto.TmdbVideoDto;
+import com.example.moviereviewmvp.dto.TmdbMovieDto;
 import jakarta.validation.Valid; //
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model; //
 import org.springframework.validation.BindingResult; //
@@ -18,10 +22,14 @@ import jakarta.servlet.http.HttpServletRequest; // Thêm import này
 public class AppController {
 
     private final UserService userService; //
+    private final TmdbService tmdbService;
+    @Value("${tmdb.image.base_url}")
+    private String tmdbImageBaseUrl;
 
     @Autowired //
-    public AppController(UserService userService) { //
+    public AppController(UserService userService, TmdbService tmdbService) { //
         this.userService = userService; //
+        this.tmdbService = tmdbService;
     }
 
     @GetMapping("/")
@@ -32,6 +40,17 @@ public class AppController {
         }
         model.addAttribute("currentUri", request.getRequestURI());
         model.addAttribute("currentUrl", requestURI);
+        // Trending
+        java.util.List<TmdbMovieDto> trendingDay = tmdbService.getTrendingMoviesDay(1);
+        java.util.List<TmdbMovieDto> trendingWeek = tmdbService.getTrendingMoviesWeek(1);
+        model.addAttribute("trendingDay", trendingDay);
+        model.addAttribute("trendingWeek", trendingWeek);
+        // Latest Trailers (Popular, In Theaters)
+        java.util.List<com.example.moviereviewmvp.service.TmdbService.TrailerWithMovieDto> latestTrailersPopular = tmdbService.getLatestTrailersPopular(1, 8);
+        java.util.List<com.example.moviereviewmvp.service.TmdbService.TrailerWithMovieDto> latestTrailersTheaters = tmdbService.getLatestTrailersInTheaters(1, 8);
+        model.addAttribute("latestTrailersPopular", latestTrailersPopular);
+        model.addAttribute("latestTrailersTheaters", latestTrailersTheaters);
+        model.addAttribute("tmdbImageBaseUrl", tmdbImageBaseUrl);
         return "index";
     }
 
