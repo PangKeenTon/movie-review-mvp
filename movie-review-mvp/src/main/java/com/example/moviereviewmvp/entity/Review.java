@@ -30,7 +30,7 @@ public class Review {
 
     // Mối quan hệ Many-to-One với Movie
     // Một bộ phim có thể có nhiều đánh giá, nhưng một đánh giá chỉ cho một bộ phim.
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "movie_id", nullable = false) // Khóa ngoại trong bảng reviews
     private Movie movie;
 

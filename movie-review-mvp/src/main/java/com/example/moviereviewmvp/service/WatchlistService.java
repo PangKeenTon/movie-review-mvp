@@ -50,8 +50,11 @@ public class WatchlistService {
     @Transactional(readOnly = true) // readOnly=true để tối ưu cho các thao tác chỉ đọc
     public Set<Movie> getWatchlistForUser(String username) {
         return userRepository.findByUsername(username)
-                .map(User::getWatchlist) // Sử dụng method reference để lấy watchlist
-                .orElse(Collections.emptySet()); // Trả về một Set rỗng nếu không tìm thấy user
+                .map(user -> {
+                    user.getWatchlist().size();
+                    return new java.util.HashSet<>(user.getWatchlist());
+                })
+                .orElseGet(() -> new java.util.HashSet<Movie>());
     }
 
     @Transactional(readOnly = true)

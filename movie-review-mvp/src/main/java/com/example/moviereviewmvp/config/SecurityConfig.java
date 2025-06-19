@@ -71,7 +71,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-// Không cần import HttpSecurity lần thứ hai
 
 @Configuration
 @EnableWebSecurity
@@ -95,9 +94,9 @@ public class SecurityConfig {
                                         "/movies/tmdb/**", // Xem phim TMDB
                                         "/movies/{id}",      // Xem chi tiết phim local
                                         "/movies",           // Xem danh sách phim local
-                                        "/error"             // Cho phép trang lỗi mặc định của Spring Boot
+                                        "/error",             // Cho phép trang lỗi mặc định của Spring Boot
+                                        "/login", "/register" // Các trang đăng nhập/đăng ký
                                 ).permitAll()
-                                .requestMatchers("/login", "/register").permitAll()
 
                                 // === Các URL yêu cầu vai trò ADMIN ===
                                 .requestMatchers("/admin/**").hasRole("ADMIN")
@@ -107,9 +106,6 @@ public class SecurityConfig {
                                 .requestMatchers("/profile/**").authenticated()
 
                                 // Tất cả các request khác chưa được định nghĩa ở trên đều cần xác thực
-
-                                .requestMatchers("/admin/**").hasRole("ADMIN")
-                                .requestMatchers("/watchlist/**").authenticated() // THÊM DÒNG NÀY
                                 .anyRequest().authenticated()
                 )
                 .formLogin(formLogin ->

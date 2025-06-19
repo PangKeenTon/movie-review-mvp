@@ -30,10 +30,17 @@
     <h1>Đánh Giá Của Tôi</h1>
     <p><a th:href="@{/profile}">&laquo; Quay lại Trang Cá Nhân</a></p>
 
-    <div th:if="${userReviews != null and not #lists.isEmpty(userReviews)}">
+    <div th:if="${userReviews != null and !userReviews.isEmpty()}">
         <div class="review-entry" th:each="review : ${userReviews}">
             <div class="review-movie-poster" th:if="${review.movie != null}">
-                <a th:href="@{${review.movie.tmdbId != null ? '/movies/tmdb/details/' + review.movie.tmdbId : '/movies/' + review.movie.id}}">
+                <a th:if="${review.movie.tmdbId != null}" th:href="@{'/movies/tmdb/details/' + ${review.movie.tmdbId}}">
+                    <img th:if="${review.movie.posterUrl != null and !review.movie.posterUrl.isEmpty()}"
+                         th:src="@{${review.movie.posterUrl.startsWith('http') ? review.movie.posterUrl : tmdbImageBaseUrl + 'w185' + review.movie.posterUrl}}"
+                         th:alt="${review.movie.title}" />
+                    <img th:unless="${review.movie.posterUrl != null and !review.movie.posterUrl.isEmpty()}"
+                         th:src="@{/images/default-poster.png}" alt="Default Poster" />
+                </a>
+                <a th:if="${review.movie.tmdbId == null}" th:href="@{'/movies/' + ${review.movie.id}}">
                     <img th:if="${review.movie.posterUrl != null and !review.movie.posterUrl.isEmpty()}"
                          th:src="@{${review.movie.posterUrl.startsWith('http') ? review.movie.posterUrl : tmdbImageBaseUrl + 'w185' + review.movie.posterUrl}}"
                          th:alt="${review.movie.title}" />
@@ -43,11 +50,12 @@
             </div>
             <div class="review-content">
                 <h3>
-                    <a th:if="${review.movie != null}"
-                       th:href="${review.movie.tmdbId != null ? @{/movies/tmdb/details/{id}(id=${review.movie.tmdbId})} : @{/movies/{id}(id=${review.movie.id})}}"
-                       th:text="${review.movie.title}">
-                        Tên Phim
-                    </a>
+                    <a th:if="${review.movie != null and review.movie.tmdbId != null}"
+                       th:href="@{/movies/tmdb/details/{id}(id=${review.movie.tmdbId})}"
+                       th:text="${review.movie.title}">Tên Phim</a>
+                    <a th:if="${review.movie != null and review.movie.tmdbId == null}"
+                       th:href="@{/movies/{id}(id=${review.movie.id})}"
+                       th:text="${review.movie.title}">Tên Phim</a>
                 </h3>
                 <div class="review-meta">
                     <span>Bạn đã đánh giá <strong th:text="${review.ratingValue}">5</strong>/5 sao</span>
@@ -58,7 +66,7 @@
         </div>
     </div>
 
-    <div th:if="${userReviews == null or #lists.isEmpty(userReviews)}">
+    <div th:if="${userReviews == null or userReviews.isEmpty()}">
         <p>Bạn chưa gửi đánh giá nào.</p>
         <p><a th:href="@{/movies/tmdb/popular}">Khám phá phim và để lại đánh giá đầu tiên của bạn!</a></p>
     </div>

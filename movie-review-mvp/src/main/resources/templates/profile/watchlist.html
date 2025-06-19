@@ -42,7 +42,7 @@
   <h1>Watchlist Của Tôi</h1>
   <p><a th:href="@{/profile}">&laquo; Quay lại Trang Cá Nhân</a></p>
 
-  <div th:if="${watchlistMovies != null and not #lists.isEmpty(watchlistMovies)}">
+  <th:block th:if="${watchlistMovies != null and !watchlistMovies.isEmpty()}">
     <div class="watchlist-grid">
       <div class="watchlist-item" th:each="movie : ${watchlistMovies}">
         <a th:href="@{${movie.tmdbId != null ? '/movies/tmdb/details/' + movie.tmdbId : '/movies/' + movie.id}}">
@@ -59,9 +59,9 @@
         </form>
       </div>
     </div>
-  </div>
+  </th:block>
 
-  <div th:if="${watchlistMovies == null or #lists.isEmpty(watchlistMovies)}">
+  <div th:if="${watchlistMovies == null or watchlistMovies.isEmpty()}">
     <p>Watchlist của bạn đang trống. Hãy thêm những bộ phim bạn muốn xem!</p>
     <p><a th:href="@{/movies/tmdb/popular}">Khám phá phim phổ biến ngay!</a></p>
   </div>

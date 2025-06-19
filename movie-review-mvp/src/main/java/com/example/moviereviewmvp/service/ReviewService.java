@@ -77,6 +77,11 @@ public class ReviewService { // <-- DẤU NGOẶC MỞ CỦA LỚP
         return userRepository.findByUsername(username)
                 .map(user -> user.getReviews().stream()
                         .sorted(Comparator.comparing(Review::getReviewDate).reversed())
+                        .peek(review -> {
+                            if (review.getMovie() != null) {
+                                review.getMovie().getId(); // Truy cập để Hibernate load movie
+                            }
+                        })
                         .collect(Collectors.toList())
                 )
                 .orElse(new ArrayList<>());

@@ -38,3 +38,33 @@ INSERT INTO MOVIE_GENRES (movie_id, genre_id) VALUES (3, 2);
 
 -- A Quiet Place: Kinh Dị (4)
 INSERT INTO MOVIE_GENRES (movie_id, genre_id) VALUES (4, 4);
+
+-- Insert default roles if they don't exist (sử dụng cú pháp H2)
+INSERT INTO roles (name) SELECT 'ROLE_USER' WHERE NOT EXISTS (SELECT 1 FROM roles WHERE name = 'ROLE_USER');
+INSERT INTO roles (name) SELECT 'ROLE_ADMIN' WHERE NOT EXISTS (SELECT 1 FROM roles WHERE name = 'ROLE_ADMIN');
+INSERT INTO roles (name) SELECT 'ROLE_CRITIC' WHERE NOT EXISTS (SELECT 1 FROM roles WHERE name = 'ROLE_CRITIC');
+
+-- Insert admin user if not exists (password: admin123)
+INSERT INTO users (username, password, email) 
+SELECT 'admin', '$2a$12$s665jclgtDrbzINhJpp8NOo5kHvjLhpZWh54pzUnwqWLtEMJu36f2', 'admin@example.com'
+WHERE NOT EXISTS (SELECT 1 FROM users WHERE username = 'admin');
+
+-- Assign admin role to admin user if not already assigned
+INSERT INTO user_roles (user_id, role_id)
+SELECT u.id, r.id
+FROM users u, roles r
+WHERE u.username = 'admin' AND r.name = 'ROLE_ADMIN'
+AND NOT EXISTS (
+    SELECT 1 FROM user_roles ur 
+    WHERE ur.user_id = u.id AND ur.role_id = r.id
+);
+
+-- Insert some basic genres if they don't exist
+INSERT INTO genres (name) SELECT 'Action' WHERE NOT EXISTS (SELECT 1 FROM genres WHERE name = 'Action');
+INSERT INTO genres (name) SELECT 'Adventure' WHERE NOT EXISTS (SELECT 1 FROM genres WHERE name = 'Adventure');
+INSERT INTO genres (name) SELECT 'Comedy' WHERE NOT EXISTS (SELECT 1 FROM genres WHERE name = 'Comedy');
+INSERT INTO genres (name) SELECT 'Drama' WHERE NOT EXISTS (SELECT 1 FROM genres WHERE name = 'Drama');
+INSERT INTO genres (name) SELECT 'Horror' WHERE NOT EXISTS (SELECT 1 FROM genres WHERE name = 'Horror');
+INSERT INTO genres (name) SELECT 'Romance' WHERE NOT EXISTS (SELECT 1 FROM genres WHERE name = 'Romance');
+INSERT INTO genres (name) SELECT 'Sci-Fi' WHERE NOT EXISTS (SELECT 1 FROM genres WHERE name = 'Sci-Fi');
+INSERT INTO genres (name) SELECT 'Thriller' WHERE NOT EXISTS (SELECT 1 FROM genres WHERE name = 'Thriller');
